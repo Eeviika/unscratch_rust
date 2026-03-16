@@ -41,3 +41,6 @@ struct ScratchBlock {
 
 #[derive(Deserialize)]
 struct ScratchVariable(String, ScratchValue);
+
+#[derive(Deserialize)]
+struct ScratchList(String, Vec<ScratchValue>);
