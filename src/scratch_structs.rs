@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use serde::Deserialize;
+use serde_json::Value;
 
 #[derive(Deserialize)]
 #[serde(untagged)]
@@ -25,13 +28,15 @@ struct PlatformMetadata {
 #[derive(Deserialize)]
 struct ScratchBlock {
     opcode: String,
+    next: Option<String>,
+    parent: Option<String>,
+    inputs: HashMap<String, Vec<Value>>,
+    fields: HashMap<String, Vec<Value>>,
     shadow: bool,
     #[serde(rename = "topLevel")]
     top_level: bool,
     x: Option<isize>,
     y: Option<isize>,
-    next: Option<String>,
-    parent: Option<String>,
 }
 
 #[derive(Deserialize)]
