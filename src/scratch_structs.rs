@@ -1,4 +1,14 @@
+use std::collections::HashMap;
+
 use serde::Deserialize;
+
+#[derive(Deserialize)]
+struct ProjectMetadata {
+    semver: String,
+    vm: String,
+    agent: String,
+    platform: Option<HashMap<String, String>>, // Turbowarp Compat.
+}
 
 #[derive(Deserialize)]
 struct ScratchBlock {
