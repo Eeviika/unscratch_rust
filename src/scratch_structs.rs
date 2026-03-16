@@ -47,6 +47,7 @@ struct ScratchList(String, Vec<ScratchValue>);
 
 #[derive(Deserialize)]
 struct ScratchComment {
+    #[serde(rename = "blockId")]
     block_id: Option<String>,
     x: Option<isize>,
     y: Option<isize>,
@@ -54,4 +55,20 @@ struct ScratchComment {
     height: isize,
     minimized: bool,
     text: String,
+}
+
+#[derive(Deserialize)]
+struct ScratchCostume {
+    name: String,
+    #[serde(rename = "bitmapResolution")]
+    bitmap_resolution: i32,
+    #[serde(rename = "dataFormat")]
+    data_format: String,
+    #[serde(rename = "assetId")]
+    asset_id: String,
+    md5ext: String,
+    #[serde(rename = "rotationCenterX")]
+    rotation_center_x: isize,
+    #[serde(rename = "rotationCenterY")]
+    rotation_center_y: isize,
 }
