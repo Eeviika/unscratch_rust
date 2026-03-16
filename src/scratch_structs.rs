@@ -1,6 +1,13 @@
+use serde::Deserialize;
 use std::collections::HashMap;
 
-use serde::Deserialize;
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum ScratchValue {
+    Number(f64),
+    Boolean(bool),
+    Text(String),
+}
 
 #[derive(Deserialize)]
 struct ProjectMetadata {
@@ -21,3 +28,6 @@ struct ScratchBlock {
     next: Option<String>,
     parent: Option<String>,
 }
+
+#[derive(Deserialize)]
+struct ScratchVariable(String, ScratchValue);
