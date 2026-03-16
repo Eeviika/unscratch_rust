@@ -1,5 +1,4 @@
 use serde::Deserialize;
-use std::collections::HashMap;
 
 #[derive(Deserialize)]
 #[serde(untagged)]
@@ -14,7 +13,13 @@ struct ProjectMetadata {
     semver: String,
     vm: String,
     agent: String,
-    platform: Option<HashMap<String, String>>, // Turbowarp Compat.
+    platform: Option<PlatformMetadata>, // Turbowarp Compat.
+}
+
+#[derive(Deserialize)]
+struct PlatformMetadata {
+    name: String,
+    url: String,
 }
 
 #[derive(Deserialize)]
