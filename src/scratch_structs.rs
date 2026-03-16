@@ -72,3 +72,17 @@ struct ScratchCostume {
     #[serde(rename = "rotationCenterY")]
     rotation_center_y: isize,
 }
+
+#[derive(Deserialize)]
+struct ScratchSound {
+    name: String,
+    #[serde(rename = "assetId")]
+    asset_id: String,
+    #[serde(rename = "dataFormat")]
+    data_format: String,
+    format: Option<String>,
+    rate: isize,
+    #[serde(rename = "sampleCount")]
+    sample_count: isize,
+    md5ext: String,
+}
