@@ -16,8 +16,8 @@ struct ScratchBlock {
     shadow: bool,
     #[serde(rename = "topLevel")]
     top_level: bool,
-    x: Option<i32>,
-    y: Option<i32>,
+    x: Option<isize>,
+    y: Option<isize>,
     next: Option<String>,
     parent: Option<String>,
 }
