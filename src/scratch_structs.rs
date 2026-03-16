@@ -30,8 +30,8 @@ struct ScratchBlock {
     opcode: String,
     next: Option<String>,
     parent: Option<String>,
-    inputs: HashMap<String, Vec<Value>>,
-    fields: HashMap<String, Vec<Value>>,
+    inputs: HashMap<String, Vec<Value>>, // i hate scratch so much
+    fields: HashMap<String, Vec<Value>>, // this is why scratch sucks
     shadow: bool,
     #[serde(rename = "topLevel")]
     top_level: bool,
@@ -44,3 +44,14 @@ struct ScratchVariable(String, ScratchValue);
 
 #[derive(Deserialize)]
 struct ScratchList(String, Vec<ScratchValue>);
+
+#[derive(Deserialize)]
+struct ScratchComment {
+    block_id: Option<String>,
+    x: Option<isize>,
+    y: Option<isize>,
+    width: isize,
+    height: isize,
+    minimized: bool,
+    text: String,
+}
