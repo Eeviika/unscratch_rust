@@ -1,5 +1,4 @@
-mod scratch_constants;
-mod scratch_structs;
+mod scratch;
 
 fn main() {
     println!("Hello, world!");
