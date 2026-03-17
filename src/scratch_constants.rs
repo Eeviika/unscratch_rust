@@ -36,3 +36,36 @@ pub enum PrimitiveTypes {
     /// data_listcontents
     ListPrimitive = 13,
 }
+
+impl TryFrom<u8> for InputShadowType {
+    type Error = u8;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            1 => Ok(InputShadowType::InputSameBlockShadow),
+            2 => Ok(InputShadowType::InputBlockNoShadow),
+            3 => Ok(InputShadowType::InputDiffBlockShadow),
+            n => Err(n),
+        }
+    }
+}
+
+impl TryFrom<u8> for PrimitiveTypes {
+    type Error = u8;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            4 => Ok(PrimitiveTypes::MathNumPrimitive),
+            5 => Ok(PrimitiveTypes::PositiveNumPrimitive),
+            6 => Ok(PrimitiveTypes::WholeNumPrimitive),
+            7 => Ok(PrimitiveTypes::IntegerNumPrimitive),
+            8 => Ok(PrimitiveTypes::AngleNumPrimitive),
+            9 => Ok(PrimitiveTypes::ColorPickerPrimitive),
+            10 => Ok(PrimitiveTypes::TextPrimitive),
+            11 => Ok(PrimitiveTypes::BroadcastPrimitive),
+            12 => Ok(PrimitiveTypes::VarPrimitive),
+            13 => Ok(PrimitiveTypes::ListPrimitive),
+            n => Err(n),
+        }
+    }
+}
