@@ -13,7 +13,7 @@ enum ScratchValue {
 
 #[derive(Deserialize)]
 #[serde(untagged)]
-enum BlockReference {
+enum ScratchBlockEntry {
     Block(ScratchBlock),
     Reporter(ScratchReporter),
 }
@@ -100,4 +100,30 @@ struct ScratchSound {
     #[serde(rename = "sampleCount")]
     sample_count: isize,
     md5ext: String,
+}
+
+struct ScratchTarget {
+    x: Option<isize>,
+    y: Option<isize>,
+    size: Option<isize>,
+    direction: Option<isize>,
+    visible: Option<bool>,
+    draggable: Option<bool>,
+    rotation_style: Option<String>,
+    is_stage: Option<bool>,
+    name: String,
+    current_costume: isize,
+    volume: i32,
+    layer_order: isize,
+    tempo: Option<isize>,
+    video_transparency: Option<isize>,
+    text_to_speech_language: Option<String>,
+    video_state: Option<String>,
+    variables: HashMap<String, ScratchVariable>,
+    lists: HashMap<String, ScratchList>,
+    broadcasts: HashMap<String, String>,
+    blocks: HashMap<String, ScratchBlockEntry>,
+    comments: HashMap<String, ScratchComment>,
+    costumes: Vec<ScratchCostume>,
+    sounds: Vec<ScratchSound>,
 }
