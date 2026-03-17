@@ -27,15 +27,15 @@ enum ScratchReporter {
 }
 
 #[derive(Deserialize)]
-struct ProjectMetadata {
+struct ScratchProjectMetadata {
     semver: String,
     vm: String,
     agent: String,
-    platform: Option<PlatformMetadata>, // Turbowarp Compat.
+    platform: Option<ScratchPlatformMetadata>, // Turbowarp Compat.
 }
 
 #[derive(Deserialize)]
-struct PlatformMetadata {
+struct ScratchPlatformMetadata {
     name: String,
     url: String,
 }
@@ -102,6 +102,7 @@ struct ScratchSound {
     md5ext: String,
 }
 
+#[derive(Deserialize)]
 struct ScratchTarget {
     x: Option<isize>,
     y: Option<isize>,
