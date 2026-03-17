@@ -162,3 +162,13 @@ struct ScratchMonitor {
     #[serde(rename = "isDiscrete")]
     is_discrete: Option<bool>,
 }
+
+#[derive(Deserialize)]
+struct ScratchProject {
+    targets: Vec<ScratchTarget>,
+    monitors: Vec<ScratchMonitor>,
+    extensions: Vec<String>,
+    #[serde(rename = "extensionURLs")]
+    extension_urls: Option<HashMap<String, String>>,
+    meta: ScratchProjectMetadata,
+}
