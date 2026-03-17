@@ -13,6 +13,13 @@ enum ScratchValue {
 
 #[derive(Deserialize)]
 #[serde(untagged)]
+enum ScratchMonitorValue {
+    Item(ScratchValue),
+    List(Vec<ScratchValue>),
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
 enum ScratchBlockEntry {
     Block(ScratchBlock),
     Reporter(ScratchReporter),
@@ -110,15 +117,22 @@ struct ScratchTarget {
     direction: Option<isize>,
     visible: Option<bool>,
     draggable: Option<bool>,
+    #[serde(rename = "rotationStyle")]
     rotation_style: Option<String>,
+    #[serde(rename = "isStage")]
     is_stage: Option<bool>,
     name: String,
+    #[serde(rename = "currentCostume")]
     current_costume: isize,
     volume: i32,
+    #[serde(rename = "layerOrder")]
     layer_order: isize,
     tempo: Option<isize>,
+    #[serde(rename = "videoTransparency")]
     video_transparency: Option<isize>,
+    #[serde(rename = "textToSpeechLanguage")]
     text_to_speech_language: Option<String>,
+    #[serde(rename = "videoState")]
     video_state: Option<String>,
     variables: HashMap<String, ScratchVariable>,
     lists: HashMap<String, ScratchList>,
@@ -127,4 +141,24 @@ struct ScratchTarget {
     comments: HashMap<String, ScratchComment>,
     costumes: Vec<ScratchCostume>,
     sounds: Vec<ScratchSound>,
+}
+
+#[derive(Deserialize)]
+struct ScratchMonitor {
+    id: String,
+    mode: String,
+    opcode: String,
+    params: HashMap<String, String>,
+    #[serde(rename = "spriteName")]
+    sprite_name: Option<String>,
+    value: ScratchMonitorValue,
+    width: u32,
+    height: u32,
+    visible: bool,
+    #[serde(rename = "sliderMin")]
+    slider_min: Option<isize>,
+    #[serde(rename = "sliderMax")]
+    slider_max: Option<isize>,
+    #[serde(rename = "isDiscrete")]
+    is_discrete: Option<bool>,
 }
