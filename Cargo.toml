@@ -1,5 +1,5 @@
 [package]
-name = "unscratch_rust"
+name = "unscratch"
 version = "0.1.0"
 edition = "2024"
 
