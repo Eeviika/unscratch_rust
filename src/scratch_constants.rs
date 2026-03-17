@@ -12,12 +12,13 @@ pub enum InputShadowType {
 
 /// Constants referring to 'primitive' blocks that are usually shadows,
 /// or in the case of variables and lists, appear quite often in projects.
+/// There's no reason these constants can't collide with [InputShadowType].
 #[derive(PartialEq, Eq)]
 pub enum PrimitiveTypes {
     /// math_number
-    MathNumPrimitive = 4, // there's no reason these constants can't collide
+    MathNumPrimitive = 4,
     /// math_positive_number
-    PositiveNumPrimitive = 5, // with the above, but removing duplication for clarity
+    PositiveNumPrimitive = 5,
     /// math_whole_number
     WholeNumPrimitive = 6,
     /// math_integer
