@@ -1,5 +1,6 @@
 /// Constants used during serialization and deserialization.
 /// According to Scratch devs, there shouldn't be a case where block is null, but shadow is present...
+#[derive(PartialEq, Eq)]
 pub enum InputShadowType {
     /// unobscured shadow
     InputSameBlockShadow = 1,
@@ -11,6 +12,7 @@ pub enum InputShadowType {
 
 /// Constants referring to 'primitive' blocks that are usually shadows,
 /// or in the case of variables and lists, appear quite often in projects.
+#[derive(PartialEq, Eq)]
 pub enum PrimitiveTypes {
     /// math_number
     MathNumPrimitive = 4, // there's no reason these constants can't collide
