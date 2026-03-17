@@ -12,6 +12,21 @@ enum ScratchValue {
 }
 
 #[derive(Deserialize)]
+#[serde(untagged)]
+enum BlockReference {
+    Block(ScratchBlock),
+    Reporter(ScratchReporter),
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum ScratchReporter {
+    Primitive(u8, String),
+    Reference(u8, String, String),
+    TopLevel(u8, String, String, String, String),
+}
+
+#[derive(Deserialize)]
 struct ProjectMetadata {
     semver: String,
     vm: String,
