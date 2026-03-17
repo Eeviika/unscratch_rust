@@ -6,8 +6,8 @@ use serde_json::Value;
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum ScratchValue {
-    Number(f64),
     Boolean(bool),
+    Number(f64),
     Text(String),
 }
 
@@ -30,7 +30,7 @@ enum ScratchBlockEntry {
 enum ScratchReporter {
     Primitive(u8, String),
     Reference(u8, String, String),
-    TopLevel(u8, String, String, String, String),
+    TopLevel(u8, String, String, f64, f64),
 }
 
 #[derive(Deserialize)]
@@ -57,8 +57,8 @@ struct ScratchBlock {
     shadow: bool,
     #[serde(rename = "topLevel")]
     top_level: bool,
-    x: Option<isize>,
-    y: Option<isize>,
+    x: Option<i32>,
+    y: Option<i32>,
 }
 
 #[derive(Deserialize)]
@@ -71,10 +71,10 @@ struct ScratchList(String, Vec<ScratchValue>);
 struct ScratchComment {
     #[serde(rename = "blockId")]
     block_id: Option<String>,
-    x: Option<isize>,
-    y: Option<isize>,
-    width: isize,
-    height: isize,
+    x: Option<i32>,
+    y: Option<i32>,
+    width: i32,
+    height: i32,
     minimized: bool,
     text: String,
 }
@@ -83,16 +83,16 @@ struct ScratchComment {
 struct ScratchCostume {
     name: String,
     #[serde(rename = "bitmapResolution")]
-    bitmap_resolution: i32,
+    bitmap_resolution: Option<u32>,
     #[serde(rename = "dataFormat")]
     data_format: String,
     #[serde(rename = "assetId")]
     asset_id: String,
     md5ext: String,
     #[serde(rename = "rotationCenterX")]
-    rotation_center_x: isize,
+    rotation_center_x: i32,
     #[serde(rename = "rotationCenterY")]
-    rotation_center_y: isize,
+    rotation_center_y: i32,
 }
 
 #[derive(Deserialize)]
@@ -103,18 +103,18 @@ struct ScratchSound {
     #[serde(rename = "dataFormat")]
     data_format: String,
     format: Option<String>,
-    rate: isize,
+    rate: u32,
     #[serde(rename = "sampleCount")]
-    sample_count: isize,
+    sample_count: u32,
     md5ext: String,
 }
 
 #[derive(Deserialize)]
 struct ScratchTarget {
-    x: Option<isize>,
-    y: Option<isize>,
-    size: Option<isize>,
-    direction: Option<isize>,
+    x: Option<i32>,
+    y: Option<i32>,
+    size: Option<i32>,
+    direction: Option<i32>,
     visible: Option<bool>,
     draggable: Option<bool>,
     #[serde(rename = "rotationStyle")]
@@ -123,13 +123,13 @@ struct ScratchTarget {
     is_stage: Option<bool>,
     name: String,
     #[serde(rename = "currentCostume")]
-    current_costume: isize,
+    current_costume: u32,
     volume: i32,
     #[serde(rename = "layerOrder")]
-    layer_order: isize,
-    tempo: Option<isize>,
+    layer_order: u32,
+    tempo: Option<u32>,
     #[serde(rename = "videoTransparency")]
-    video_transparency: Option<isize>,
+    video_transparency: Option<u32>,
     #[serde(rename = "textToSpeechLanguage")]
     text_to_speech_language: Option<String>,
     #[serde(rename = "videoState")]
