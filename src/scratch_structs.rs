@@ -5,7 +5,7 @@ use serde_json::Value;
 
 #[derive(Deserialize)]
 #[serde(untagged)]
-enum ScratchValue {
+pub enum ScratchValue {
     Boolean(bool),
     Number(f64),
     Text(String),
@@ -13,28 +13,28 @@ enum ScratchValue {
 
 #[derive(Deserialize)]
 #[serde(untagged)]
-enum ScratchMonitorValue {
+pub enum ScratchMonitorValue {
     Item(ScratchValue),
     List(Vec<ScratchValue>),
 }
 
 #[derive(Deserialize)]
 #[serde(untagged)]
-enum ScratchBlockEntry {
+pub enum ScratchBlockEntry {
     Block(ScratchBlock),
     Reporter(ScratchReporter),
 }
 
 #[derive(Deserialize)]
 #[serde(untagged)]
-enum ScratchReporter {
+pub enum ScratchReporter {
     Primitive(u8, String),
     Reference(u8, String, String),
     TopLevel(u8, String, String, f64, f64),
 }
 
 #[derive(Deserialize)]
-struct ScratchProjectMetadata {
+pub struct ScratchProjectMetadata {
     semver: String,
     vm: String,
     agent: String,
@@ -42,13 +42,13 @@ struct ScratchProjectMetadata {
 }
 
 #[derive(Deserialize)]
-struct ScratchPlatformMetadata {
+pub struct ScratchPlatformMetadata {
     name: String,
     url: String,
 }
 
 #[derive(Deserialize)]
-struct ScratchBlock {
+pub struct ScratchBlock {
     opcode: String,
     next: Option<String>,
     parent: Option<String>,
@@ -62,13 +62,13 @@ struct ScratchBlock {
 }
 
 #[derive(Deserialize)]
-struct ScratchVariable(String, ScratchValue);
+pub struct ScratchVariable(String, ScratchValue);
 
 #[derive(Deserialize)]
-struct ScratchList(String, Vec<ScratchValue>);
+pub struct ScratchList(String, Vec<ScratchValue>);
 
 #[derive(Deserialize)]
-struct ScratchComment {
+pub struct ScratchComment {
     #[serde(rename = "blockId")]
     block_id: Option<String>,
     x: Option<i32>,
@@ -80,7 +80,7 @@ struct ScratchComment {
 }
 
 #[derive(Deserialize)]
-struct ScratchCostume {
+pub struct ScratchCostume {
     name: String,
     #[serde(rename = "bitmapResolution")]
     bitmap_resolution: Option<u32>,
@@ -96,7 +96,7 @@ struct ScratchCostume {
 }
 
 #[derive(Deserialize)]
-struct ScratchSound {
+pub struct ScratchSound {
     name: String,
     #[serde(rename = "assetId")]
     asset_id: String,
@@ -110,7 +110,7 @@ struct ScratchSound {
 }
 
 #[derive(Deserialize)]
-struct ScratchTarget {
+pub struct ScratchTarget {
     x: Option<i32>,
     y: Option<i32>,
     size: Option<i32>,
@@ -144,7 +144,7 @@ struct ScratchTarget {
 }
 
 #[derive(Deserialize)]
-struct ScratchMonitor {
+pub struct ScratchMonitor {
     id: String,
     mode: String,
     opcode: String,
@@ -164,7 +164,7 @@ struct ScratchMonitor {
 }
 
 #[derive(Deserialize)]
-struct ScratchProject {
+pub struct ScratchProject {
     targets: Vec<ScratchTarget>,
     monitors: Vec<ScratchMonitor>,
     extensions: Vec<String>,
