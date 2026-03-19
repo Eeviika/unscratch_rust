@@ -7,7 +7,7 @@ use clap::Parser;
 use cli::*;
 use log::debug;
 use std::{fs::File, io::BufReader, path::PathBuf};
-use zip::extra_fields;
+use zip::{ZipArchive, extra_fields};
 
 use crate::scratch::scratch_structs::ScratchProject;
 
@@ -60,7 +60,10 @@ fn unpack(input: PathBuf, output: Option<PathBuf>, dry_run: bool, is_verbose: bo
 
     let file = File::open(&input)?;
     let reader = BufReader::new(file);
-    let scratch_project: ScratchProject = serde_json::from_reader(reader)?;
+    let mut archive = ZipArchive::new(reader)?;
+
+    let json_file = archive.by_name("project.json")?;
+    let scratch_project: ScratchProject = serde_json::from_reader(json_file)?;
 
     Ok(())
 }
