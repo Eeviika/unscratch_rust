@@ -57,8 +57,8 @@ pub struct ScratchBlock {
     shadow: bool,
     #[serde(rename = "topLevel")]
     top_level: bool,
-    x: Option<i32>,
-    y: Option<i32>,
+    x: Option<f32>,
+    y: Option<f32>,
 }
 
 #[derive(Deserialize)]
@@ -71,10 +71,10 @@ pub struct ScratchList(String, Vec<ScratchValue>);
 pub struct ScratchComment {
     #[serde(rename = "blockId")]
     block_id: Option<String>,
-    x: Option<i32>,
-    y: Option<i32>,
-    width: i32,
-    height: i32,
+    x: Option<f32>,
+    y: Option<f32>,
+    width: f32,
+    height: f32,
     minimized: bool,
     text: String,
 }
@@ -90,9 +90,9 @@ pub struct ScratchCostume {
     asset_id: String,
     md5ext: String,
     #[serde(rename = "rotationCenterX")]
-    rotation_center_x: i32,
+    rotation_center_x: f32,
     #[serde(rename = "rotationCenterY")]
-    rotation_center_y: i32,
+    rotation_center_y: f32,
 }
 
 #[derive(Deserialize)]
@@ -111,10 +111,10 @@ pub struct ScratchSound {
 
 #[derive(Deserialize)]
 pub struct ScratchTarget {
-    x: Option<i32>,
-    y: Option<i32>,
-    size: Option<i32>,
-    direction: Option<i32>,
+    x: Option<f32>,
+    y: Option<f32>,
+    size: Option<f32>,
+    direction: Option<f32>,
     visible: Option<bool>,
     draggable: Option<bool>,
     #[serde(rename = "rotationStyle")]
@@ -124,7 +124,7 @@ pub struct ScratchTarget {
     name: String,
     #[serde(rename = "currentCostume")]
     current_costume: u32,
-    volume: i32,
+    volume: u32,
     #[serde(rename = "layerOrder")]
     layer_order: u32,
     tempo: Option<u32>,
