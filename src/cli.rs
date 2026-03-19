@@ -1,7 +1,8 @@
 use clap::{Parser, Subcommand, ValueEnum};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
-const LONG_ABOUT: &str = "A program / CLI tool to pack and unpack Scratch project files on your filesystem.";
+const LONG_ABOUT: &str =
+    "A program / CLI tool to pack and unpack Scratch project files on your filesystem.";
 
 #[derive(Debug, Clone, ValueEnum)]
 pub enum ProjectType {
@@ -41,9 +42,9 @@ pub enum CommandType {
         #[arg(short, long)]
         input: PathBuf,
         /// force a certain project type
-        #[arg(short,long)]
-        force_type: Option<ProjectType>
-    }
+        #[arg(short, long)]
+        force_type: Option<ProjectType>,
+    },
 }
 
 #[derive(Parser)]
