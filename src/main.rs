@@ -5,14 +5,12 @@ mod unscratch;
 use anyhow::{Ok, Result, anyhow, bail};
 use clap::Parser;
 use cli::*;
-use log::debug;
 use std::{fs::File, io::BufReader, path::PathBuf};
 use zip::{ZipArchive, extra_fields};
 
 use crate::scratch::scratch_structs::ScratchProject;
 
 fn main() -> Result<()> {
-    debug!("Parsing...");
     let cli = CLI::parse();
     let is_verbose = cli.verbose;
 
@@ -29,6 +27,8 @@ fn main() -> Result<()> {
 }
 
 fn unpack(input: PathBuf, output: Option<PathBuf>, dry_run: bool, is_verbose: bool) -> Result<()> {
+    println!("beginning unpack");
+
     if !input.exists() {
         return Err(anyhow!("the input file must exist"));
     }
@@ -53,6 +53,8 @@ fn unpack(input: PathBuf, output: Option<PathBuf>, dry_run: bool, is_verbose: bo
         return Err(anyhow!("the input file is not a scratch project (.sb3)"));
     }
 
+    println!("found project file");
+
     let output = output.unwrap_or_else(|| {
         let stem = input.file_stem().expect("input has no file stem");
         PathBuf::from(stem)
@@ -60,10 +62,20 @@ fn unpack(input: PathBuf, output: Option<PathBuf>, dry_run: bool, is_verbose: bo
 
     let file = File::open(&input)?;
     let reader = BufReader::new(file);
+
+    println!("reading zip...");
+
     let mut archive = ZipArchive::new(reader)?;
 
     let json_file = archive.by_name("project.json")?;
+
+    let pb = indicatif::ProgressBar::new_spinner();
+    pb.set_message("reading project.json...");
+    pb.enable_steady_tick(std::time::Duration::from_millis(100));
+
     let scratch_project: ScratchProject = serde_json::from_reader(json_file)?;
+
+    pb.finish_with_message("done!");
 
     Ok(())
 }
