@@ -6,7 +6,7 @@ use anyhow::{Ok, Result, anyhow, bail};
 use clap::Parser;
 use cli::*;
 use std::{fs::File, io::BufReader, path::PathBuf};
-use zip::{ZipArchive, extra_fields};
+use zip::ZipArchive;
 
 use crate::scratch::scratch_structs::ScratchProject;
 
