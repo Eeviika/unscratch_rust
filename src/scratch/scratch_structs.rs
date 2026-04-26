@@ -35,140 +35,140 @@ pub enum ScratchReporter {
 
 #[derive(Deserialize)]
 pub struct ScratchProjectMetadata {
-    semver: String,
-    vm: String,
-    agent: String,
-    platform: Option<ScratchPlatformMetadata>, // Turbowarp Compat.
+    pub semver: String,
+    pub vm: String,
+    pub agent: String,
+    pub platform: Option<ScratchPlatformMetadata>, // Turbowarp Compat.
 }
 
 #[derive(Deserialize)]
 pub struct ScratchPlatformMetadata {
-    name: String,
-    url: String,
+    pub name: String,
+    pub url: String,
 }
 
 #[derive(Deserialize)]
 pub struct ScratchBlock {
-    opcode: String,
-    next: Option<String>,
-    parent: Option<String>,
-    inputs: HashMap<String, Vec<Value>>, // i hate scratch so much
-    fields: HashMap<String, Vec<Value>>, // this is why scratch sucks
-    shadow: bool,
+    pub opcode: String,
+    pub next: Option<String>,
+    pub parent: Option<String>,
+    pub inputs: HashMap<String, Vec<Value>>, // i hate scratch so much
+    pub fields: HashMap<String, Vec<Value>>, // this is why scratch sucks
+    pub shadow: bool,
     #[serde(rename = "topLevel")]
-    top_level: bool,
-    x: Option<f32>,
-    y: Option<f32>,
+    pub top_level: bool,
+    pub x: Option<f32>,
+    pub y: Option<f32>,
 }
 
 #[derive(Deserialize)]
-pub struct ScratchVariable(String, ScratchValue);
+pub struct ScratchVariable(pub String, pub ScratchValue);
 
 #[derive(Deserialize)]
-pub struct ScratchList(String, Vec<ScratchValue>);
+pub struct ScratchList(pub String, pub Vec<ScratchValue>);
 
 #[derive(Deserialize)]
 pub struct ScratchComment {
     #[serde(rename = "blockId")]
-    block_id: Option<String>,
-    x: Option<f32>,
-    y: Option<f32>,
-    width: f32,
-    height: f32,
-    minimized: bool,
-    text: String,
+    pub block_id: Option<String>,
+    pub x: Option<f32>,
+    pub y: Option<f32>,
+    pub width: f32,
+    pub height: f32,
+    pub minimized: bool,
+    pub text: String,
 }
 
 #[derive(Deserialize)]
 pub struct ScratchCostume {
-    name: String,
+    pub name: String,
     #[serde(rename = "bitmapResolution")]
-    bitmap_resolution: Option<u32>,
+    pub bitmap_resolution: Option<u32>,
     #[serde(rename = "dataFormat")]
-    data_format: String,
+    pub data_format: String,
     #[serde(rename = "assetId")]
-    asset_id: String,
-    md5ext: String,
+    pub asset_id: String,
+    pub md5ext: String,
     #[serde(rename = "rotationCenterX")]
-    rotation_center_x: f32,
+    pub rotation_center_x: f32,
     #[serde(rename = "rotationCenterY")]
-    rotation_center_y: f32,
+    pub rotation_center_y: f32,
 }
 
 #[derive(Deserialize)]
 pub struct ScratchSound {
-    name: String,
+    pub name: String,
     #[serde(rename = "assetId")]
-    asset_id: String,
+    pub asset_id: String,
     #[serde(rename = "dataFormat")]
-    data_format: String,
-    format: Option<String>,
-    rate: u32,
+    pub data_format: String,
+    pub format: Option<String>,
+    pub rate: u32,
     #[serde(rename = "sampleCount")]
-    sample_count: u32,
-    md5ext: String,
+    pub sample_count: u32,
+    pub md5ext: String,
 }
 
 #[derive(Deserialize)]
 pub struct ScratchTarget {
-    x: Option<f32>,
-    y: Option<f32>,
-    size: Option<f32>,
-    direction: Option<f32>,
-    visible: Option<bool>,
-    draggable: Option<bool>,
+    pub x: Option<f32>,
+    pub y: Option<f32>,
+    pub size: Option<f32>,
+    pub direction: Option<f32>,
+    pub visible: Option<bool>,
+    pub draggable: Option<bool>,
     #[serde(rename = "rotationStyle")]
-    rotation_style: Option<String>,
+    pub rotation_style: Option<String>,
     #[serde(rename = "isStage")]
-    is_stage: Option<bool>,
-    name: String,
+    pub is_stage: Option<bool>,
+    pub name: String,
     #[serde(rename = "currentCostume")]
-    current_costume: u32,
-    volume: u32,
+    pub current_costume: u32,
+    pub volume: u32,
     #[serde(rename = "layerOrder")]
-    layer_order: u32,
-    tempo: Option<u32>,
+    pub layer_order: u32,
+    pub tempo: Option<u32>,
     #[serde(rename = "videoTransparency")]
-    video_transparency: Option<u32>,
+    pub video_transparency: Option<u32>,
     #[serde(rename = "textToSpeechLanguage")]
-    text_to_speech_language: Option<String>,
+    pub text_to_speech_language: Option<String>,
     #[serde(rename = "videoState")]
-    video_state: Option<String>,
-    variables: HashMap<String, ScratchVariable>,
-    lists: HashMap<String, ScratchList>,
-    broadcasts: HashMap<String, String>,
-    blocks: HashMap<String, ScratchBlockEntry>,
-    comments: HashMap<String, ScratchComment>,
-    costumes: Vec<ScratchCostume>,
-    sounds: Vec<ScratchSound>,
+    pub video_state: Option<String>,
+    pub variables: HashMap<String, ScratchVariable>,
+    pub lists: HashMap<String, ScratchList>,
+    pub broadcasts: HashMap<String, String>,
+    pub blocks: HashMap<String, ScratchBlockEntry>,
+    pub comments: HashMap<String, ScratchComment>,
+    pub costumes: Vec<ScratchCostume>,
+    pub sounds: Vec<ScratchSound>,
 }
 
 #[derive(Deserialize)]
 pub struct ScratchMonitor {
-    id: String,
-    mode: String,
-    opcode: String,
-    params: HashMap<String, String>,
+    pub id: String,
+    pub mode: String,
+    pub opcode: String,
+    pub params: HashMap<String, String>,
     #[serde(rename = "spriteName")]
-    sprite_name: Option<String>,
-    value: ScratchMonitorValue,
-    width: u32,
-    height: u32,
-    visible: bool,
+    pub sprite_name: Option<String>,
+    pub value: ScratchMonitorValue,
+    pub width: u32,
+    pub height: u32,
+    pub visible: bool,
     #[serde(rename = "sliderMin")]
-    slider_min: Option<isize>,
+    pub slider_min: Option<isize>,
     #[serde(rename = "sliderMax")]
-    slider_max: Option<isize>,
+    pub slider_max: Option<isize>,
     #[serde(rename = "isDiscrete")]
-    is_discrete: Option<bool>,
+    pub is_discrete: Option<bool>,
 }
 
 #[derive(Deserialize)]
 pub struct ScratchProject {
-    targets: Vec<ScratchTarget>,
-    monitors: Vec<ScratchMonitor>,
-    extensions: Vec<String>,
+    pub targets: Vec<ScratchTarget>,
+    pub monitors: Vec<ScratchMonitor>,
+    pub extensions: Vec<String>,
     #[serde(rename = "extensionURLs")]
-    extension_urls: Option<HashMap<String, String>>,
-    meta: ScratchProjectMetadata,
+    pub extension_urls: Option<HashMap<String, String>>,
+    pub meta: ScratchProjectMetadata,
 }
