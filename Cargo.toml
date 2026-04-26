@@ -2,6 +2,11 @@
 name = "unscratch"
 version = "0.1.0"
 edition = "2024"
+description = "A CLI tool to help pack and unpack Scratch project files"
+repository = "https://github.com/Eeviika/unscratch_rust"
+license = "MIT"
+keywords = ["cli", "scratch"]
+categories = ["command-line-utilities", "filesystem"]
 
 [dependencies]
 anyhow = "1.0.102"
