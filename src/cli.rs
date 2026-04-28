@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
 
-const LONG_ABOUT: &str = "a cli tool to pack and unpack scratch project files";
+const LONG_ABOUT: &str = "A CLI tool to pack and unpack Scratch project files.";
 
 #[derive(Debug, Clone, ValueEnum)]
 pub enum ProjectType {
@@ -11,38 +11,36 @@ pub enum ProjectType {
 
 #[derive(Subcommand)]
 pub enum CommandType {
-    /// unpack a scratch project onto the filesystem
+    /// Unpack a Scratch project onto the filesystem
     Unpack {
-        /// path to scratch project
+        /// The path to the Scratch project
         #[arg(short, long)]
         input: PathBuf,
-        /// path to folder to unpack the project to (will be created)
+        /// The path to the folder to unpack the project to
+        /// (It will be created if it doesn't exist)
         #[arg(short, long)]
         output: Option<PathBuf>,
-        /// don't actually do anything
+        /// Force file operations, ignoring safety checks
+        #[arg(short, long)]
+        force: bool,
+        /// Do not perform any file operations
         #[arg(long)]
         dry_run: bool,
+        /// Export the project with no tweaks applied
+        #[arg(long)]
+        as_is: bool,
     },
-    /// pack an unscratch project into a scratch project
+    /// Pack an unpacked project back into a Scratch project
     Pack {
-        /// path to unpacked (unscratch) project
+        /// Path to the unpacked project folder
         #[arg(short, long)]
         input: PathBuf,
-        /// path to pack scratch project to
+        /// Filename / path to output project file to
         #[arg(short, long)]
         output: Option<PathBuf>,
-        /// don't actually do anything
+        /// Do not perform any file operations
         #[arg(long)]
         dry_run: bool,
-    },
-    /// check a project for validity
-    Verify {
-        /// path to project
-        #[arg(short, long)]
-        input: PathBuf,
-        /// force a certain project type
-        #[arg(short, long)]
-        force_type: Option<ProjectType>,
     },
 }
 
