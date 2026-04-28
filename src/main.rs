@@ -18,42 +18,71 @@ fn main() -> Result<()> {
         CommandType::Unpack {
             input,
             output,
+            force,
             dry_run,
-        } => unpack(input, output, dry_run, is_verbose)?,
+            as_is,
+        } => unpack(input, output, force, dry_run, as_is, is_verbose)?,
         _ => bail!("not implemented"),
     }
 
     Ok(())
 }
 
-fn unpack(input: PathBuf, output: Option<PathBuf>, dry_run: bool, is_verbose: bool) -> Result<()> {
-    println!("beginning unpack");
+fn unpack(
+    input: PathBuf,
+    mut output: Option<PathBuf>,
+    force: bool,
+    dry_run: bool,
+    as_is: bool,
+    is_verbose: bool,
+) -> Result<()> {
+    println!("Beginning unpack...");
 
     if !input.exists() {
-        return Err(anyhow!("the input file must exist"));
+        return Err(anyhow!("The input file must exist."));
     }
 
     if !input.is_file() {
-        return Err(anyhow!("the input is not a file; but is a directory"));
+        return Err(anyhow!(
+            "The input was expected to be a file, but we found a directory."
+        ));
     }
 
-    if input.file_stem().is_none() && output.is_none() {
+    if input.file_stem().is_none() && output.is_none() && !force {
         return Err(anyhow!(
-            "input file has no name, please define output folder"
+            "The input file has no name, so you should specify an output folder."
         ));
+    } else if input.file_stem().is_none() && output.is_none() {
+        println!(
+            "Warning: The input file has no name. Ignoring because we are forcing file operations."
+        );
+        output = Some(PathBuf::from("./unscratch_output"));
+        println!("Warning: Will output to the {:?} folder instead.", output);
     }
 
     let ext = input.extension();
 
-    if ext.is_none() {
-        return Err(anyhow!("the input file has no extension"));
+    if ext.is_none() && !force {
+        return Err(anyhow!(
+            "The input file has no extension, did you select the right file?"
+        ));
+    } else if ext.is_none() {
+        println!(
+            "Warning: The input file has no extension. Ignorning because we are forcing file operations."
+        );
     }
 
-    if ext.unwrap() != "sb3" {
-        return Err(anyhow!("the input file is not a scratch project (.sb3)"));
+    if ext.unwrap() != "sb3" && !force {
+        return Err(anyhow!(
+            "The input file doesn't have an \".sb3\" extension, did you select the right file? Unscratch only supports Scratch 3."
+        ));
+    } else if ext.unwrap() != "sb3" {
+        println!(
+            "Warning: The input file doesn't have the \".sb3\" extension. Ignoring because we are forcing file operations."
+        );
     }
 
-    println!("found project file");
+    println!("Got project file.");
 
     let output = output.unwrap_or_else(|| {
         let stem = input.file_stem().expect("input has no file stem");
@@ -63,14 +92,14 @@ fn unpack(input: PathBuf, output: Option<PathBuf>, dry_run: bool, is_verbose: bo
     let file = File::open(&input)?;
     let reader = BufReader::new(file);
 
-    println!("reading zip...");
+    println!("Scanning project file...");
 
     let mut archive = ZipArchive::new(reader)?;
 
     let json_file = archive.by_name("project.json")?;
 
     let pb = indicatif::ProgressBar::new_spinner();
-    pb.set_message("reading project.json...");
+    pb.set_message("Parsing project file...");
     pb.enable_steady_tick(std::time::Duration::from_millis(100));
 
     let scratch_project: ScratchProject = serde_json::from_reader(json_file)?;
