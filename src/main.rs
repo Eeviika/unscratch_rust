@@ -21,23 +21,31 @@ fn main() -> Result<()> {
             force,
             dry_run,
             as_is,
-        } => unpack(input, output, force, dry_run, as_is, is_verbose)?,
+        } => {
+            let out = output.unwrap_or_else(|| derive_output(&input));
+            unpack(input, out, force, dry_run, as_is, is_verbose)?
+        }
         _ => bail!("not implemented"),
     }
 
     Ok(())
 }
 
-fn unpack(
-    input: PathBuf,
-    output: Option<PathBuf>,
-    force: bool,
-    dry_run: bool,
-    as_is: bool,
-    is_verbose: bool,
-) -> Result<()> {
-    println!("Beginning unpack...");
+fn derive_output(input: &PathBuf) -> PathBuf {
+    let mut out = input.clone();
 
+    if let Some(stem) = input.file_stem() {
+        out.set_file_name(format!("{}_out", stem.to_string_lossy()));
+    } else {
+        println!("Warning: The input file has no name, so you should specify an output folder.");
+        println!("         Will output to the \"./unscratch_output\" folder instead.");
+        out.set_file_name("unscratch_output");
+    }
+
+    out
+}
+
+fn validate_inputs(input: &PathBuf, output: &PathBuf, force: bool) -> Result<()> {
     if !input.exists() {
         return Err(anyhow!("The input file must exist."));
     }
@@ -46,17 +54,6 @@ fn unpack(
         return Err(anyhow!(
             "The input was expected to be a file, but we found a directory."
         ));
-    }
-
-    if input.file_stem().is_none() && output.is_none() && !force {
-        return Err(anyhow!(
-            "The input file has no name, so you should specify an output folder."
-        ));
-    } else if input.file_stem().is_none() && output.is_none() {
-        println!(
-            "Warning: The input file has no name. Ignoring because we are forcing file operations."
-        );
-        println!("Will output to the \"./unscratch_output\" folder instead.");
     }
 
     let ext = input.extension().unwrap_or(OsStr::new(""));
@@ -81,12 +78,22 @@ fn unpack(
         );
     }
 
-    println!("Got project file.");
+    Ok(())
+}
 
-    let output = output.unwrap_or_else(|| {
-        let stem = input.file_stem().expect("input has no file stem");
-        PathBuf::from(stem)
-    });
+fn unpack(
+    input: PathBuf,
+    output: PathBuf,
+    force: bool,
+    dry_run: bool,
+    as_is: bool,
+    is_verbose: bool,
+) -> Result<()> {
+    println!("Beginning unpack...");
+
+    validate_inputs(&input, &output, force)?;
+
+    println!("Got project file.");
 
     let file = File::open(&input)?;
     let reader = BufReader::new(file);
