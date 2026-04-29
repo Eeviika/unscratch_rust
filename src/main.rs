@@ -22,8 +22,8 @@ fn main() -> Result<()> {
             dry_run,
             as_is,
         } => {
-            let out = output.unwrap_or_else(|| derive_output(&input));
-            unpack(input, out, force, dry_run, as_is, is_verbose)?
+            let output = output.unwrap_or_else(|| derive_output(&input));
+            unpack(input, output, force, dry_run, as_is, is_verbose)?
         }
         _ => bail!("not implemented"),
     }
