@@ -78,6 +78,12 @@ fn validate_inputs(input: &PathBuf, output: &PathBuf, force: bool) -> Result<()>
         );
     }
 
+    if output.is_file() {
+        return Err(anyhow!(
+            "The output folder specified is an already existing file."
+        ));
+    }
+
     Ok(())
 }
 
