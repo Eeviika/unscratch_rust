@@ -5,7 +5,7 @@ mod unscratch;
 use anyhow::{Ok, Result, anyhow, bail};
 use clap::Parser;
 use cli::*;
-use std::{fs::File, io::BufReader, path::PathBuf};
+use std::{ffi::OsStr, fs::File, io::BufReader, path::PathBuf};
 use zip::ZipArchive;
 
 use crate::scratch::scratch_structs::ScratchProject;
@@ -30,7 +30,7 @@ fn main() -> Result<()> {
 
 fn unpack(
     input: PathBuf,
-    mut output: Option<PathBuf>,
+    output: Option<PathBuf>,
     force: bool,
     dry_run: bool,
     as_is: bool,
@@ -56,27 +56,26 @@ fn unpack(
         println!(
             "Warning: The input file has no name. Ignoring because we are forcing file operations."
         );
-        output = Some(PathBuf::from("./unscratch_output"));
-        println!("Warning: Will output to the {:?} folder instead.", output);
+        println!("Will output to the \"./unscratch_output\" folder instead.");
     }
 
-    let ext = input.extension();
+    let ext = input.extension().unwrap_or(OsStr::new(""));
 
-    if ext.is_none() && !force {
+    if ext == "" && !force {
         return Err(anyhow!(
-            "The input file has no extension, did you select the right file?"
+            "The input file doesn't have an extension. Did you select the right file?"
         ));
-    } else if ext.is_none() {
+    } else if ext == "" {
         println!(
-            "Warning: The input file has no extension. Ignorning because we are forcing file operations."
-        );
+            "The input file doesn't have an extension. Ignoring because we are forcing file operations."
+        )
     }
 
-    if ext.unwrap() != "sb3" && !force {
+    if ext != "sb3" && !force {
         return Err(anyhow!(
             "The input file doesn't have an \".sb3\" extension, did you select the right file? Unscratch only supports Scratch 3."
         ));
-    } else if ext.unwrap() != "sb3" {
+    } else if ext != "sb3" {
         println!(
             "Warning: The input file doesn't have the \".sb3\" extension. Ignoring because we are forcing file operations."
         );
@@ -104,7 +103,7 @@ fn unpack(
 
     let scratch_project: ScratchProject = serde_json::from_reader(json_file)?;
 
-    pb.finish_with_message("done!");
+    pb.finish_with_message("Parsing project file... Done!");
 
     Ok(())
 }
