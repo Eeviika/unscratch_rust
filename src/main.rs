@@ -84,6 +84,16 @@ fn validate_inputs(input: &PathBuf, output: &PathBuf, force: bool) -> Result<()>
         ));
     }
 
+    if output.is_dir() && !force {
+        return Err(anyhow!(
+            "The output folder specified is an already existing folder."
+        ));
+    } else if output.is_dir() {
+        println!(
+            "Warning: Output folder specified already exists. Will delete because we are forcing file operations."
+        )
+    }
+
     Ok(())
 }
 
