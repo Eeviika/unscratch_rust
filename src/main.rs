@@ -12,18 +12,17 @@ use crate::scratch::scratch_structs::ScratchProject;
 
 fn main() -> Result<()> {
     let cli = CLI::parse();
-    let is_verbose = cli.verbose;
+    let cli_options = CLIOptions::from_cli(&cli);
 
     match cli.command {
         CommandType::Unpack {
             input,
             output,
-            force,
-            dry_run,
             as_is,
+            no_assets,
         } => {
             let output = output.unwrap_or_else(|| derive_output(&input));
-            unpack(input, output, force, dry_run, as_is, is_verbose)?
+            unpack(input, output, as_is, cli_options)?
         }
         _ => bail!("not implemented"),
     }
@@ -58,11 +57,11 @@ fn validate_inputs(input: &PathBuf, output: &PathBuf, force: bool) -> Result<()>
 
     let ext = input.extension().unwrap_or(OsStr::new(""));
 
-    if ext == "" && !force {
+    if ext.is_empty() && !force {
         return Err(anyhow!(
             "The input file doesn't have an extension. Did you select the right file?"
         ));
-    } else if ext == "" {
+    } else if ext.is_empty() {
         println!(
             "The input file doesn't have an extension. Ignoring because we are forcing file operations."
         )
@@ -97,17 +96,10 @@ fn validate_inputs(input: &PathBuf, output: &PathBuf, force: bool) -> Result<()>
     Ok(())
 }
 
-fn unpack(
-    input: PathBuf,
-    output: PathBuf,
-    force: bool,
-    dry_run: bool,
-    as_is: bool,
-    is_verbose: bool,
-) -> Result<()> {
+fn unpack(input: PathBuf, output: PathBuf, as_is: bool, cli_options: CLIOptions) -> Result<()> {
     println!("Beginning unpack...");
 
-    validate_inputs(&input, &output, force)?;
+    validate_inputs(&input, &output, cli_options.force)?;
 
     println!("Got project file.");
 
