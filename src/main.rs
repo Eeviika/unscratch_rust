@@ -2,6 +2,7 @@
 
 mod cli;
 mod scratch;
+mod unpack;
 mod unscratch;
 
 use anyhow::{Ok, Result, anyhow, bail};
