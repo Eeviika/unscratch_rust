@@ -49,6 +49,9 @@ pub struct CLI {
     /// Do not perform any file operations
     #[arg(short, long)]
     pub dry_run: bool,
+    /// Do not output any logs
+    #[arg(short, long)]
+    pub silent: bool,
     #[command(subcommand)]
     pub command: CommandType,
 }
