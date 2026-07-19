@@ -54,14 +54,20 @@ pub struct CLIOptions {
     pub verbose: bool,
     pub force: bool,
     pub dry_run: bool,
+    pub silent: bool,
 }
 
 impl CLIOptions {
     pub fn from_cli(cli: &CLI) -> Self {
+        let verbose = cli.verbose;
+        let force = cli.force;
+        let dry_run = cli.dry_run;
+        let silent = cli.silent;
         CLIOptions {
-            verbose: cli.verbose,
-            force: cli.force,
-            dry_run: cli.dry_run,
+            verbose,
+            force,
+            dry_run,
+            silent,
         }
     }
 }
