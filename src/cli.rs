@@ -3,12 +3,6 @@ use std::path::PathBuf;
 
 const LONG_ABOUT: &str = "A CLI tool to pack and unpack Scratch project files.";
 
-#[derive(Debug, Clone, ValueEnum)]
-pub enum ProjectType {
-    Unscratch,
-    Scratch,
-}
-
 #[derive(Subcommand)]
 pub enum CommandType {
     /// Unpack a Scratch project onto the filesystem
