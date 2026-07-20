@@ -8,11 +8,9 @@ use zip::ZipArchive;
 use crate::scratch::scratch_structs::*;
 
 pub fn unpack(input: PathBuf, output: PathBuf, as_is: bool, cli_options: CliOptions) -> Result<()> {
-    println!("Beginning unpack...");
-
     are_filepaths_ok(&input, &output, cli_options.force)?;
 
-    println!("Got project file.");
+    println!("Beginning unpack...");
 
     let file = File::open(&input)?;
     let reader = BufReader::new(file);
@@ -29,7 +27,7 @@ pub fn unpack(input: PathBuf, output: PathBuf, as_is: bool, cli_options: CliOpti
 
     let scratch_project: ScratchProject = serde_json::from_reader(json_file)?;
 
-    pb.finish_with_message("Parsing project file... Done!");
+    pb.finish_with_message("Parsing project file... OK!");
 
     Ok(())
 }
