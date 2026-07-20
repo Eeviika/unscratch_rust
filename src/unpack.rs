@@ -39,12 +39,12 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
     let json_file = archive.by_name("project.json")?;
 
     let pb = indicatif::ProgressBar::new_spinner();
-    pb.set_message("Parsing project file...");
+    pb.set_message("Parsing project JSON...");
     pb.enable_steady_tick(std::time::Duration::from_millis(100));
 
     let scratch_project: ScratchProject = serde_json::from_reader(json_file)?;
 
-    pb.finish_with_message("Parsing project file... OK!");
+    pb.finish();
 
     Ok(())
 }
