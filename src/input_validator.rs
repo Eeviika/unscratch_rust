@@ -30,13 +30,13 @@ pub fn are_filepaths_ok(input: &Path, output: &Path, force: bool) -> Result<()> 
     check(input.exists(), "", "Input file does not exist.", false)?;
     check(input.is_file(), "", "Input must be a file.", false)?;
     check(
-        output.is_file(),
+        !output.is_file(),
         "",
         "Output points to an existing file.",
         false,
     )?;
     check(
-        output.is_dir(),
+        !output.is_dir(),
         "Output is existing directory, overwriting.",
         "Output points to an existing directory. Stopping.\n(Use --force to overwrite).",
         force,
