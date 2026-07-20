@@ -8,7 +8,8 @@ use anyhow::{Ok, Result, bail};
 use clap::Parser;
 use cli::*;
 use input_validator::derive_output;
-use unpack::unpack;
+
+use crate::unpack::{UnpackArgs, unpack};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -22,7 +23,13 @@ fn main() -> Result<()> {
             no_assets,
         } => {
             let output = output.unwrap_or_else(|| derive_output(&input));
-            unpack(input, output, as_is, cli_options)?
+            let args = UnpackArgs {
+                input,
+                output,
+                as_is,
+                no_assets,
+            };
+            unpack(args, cli_options)?
         }
         _ => bail!("not implemented"),
     }

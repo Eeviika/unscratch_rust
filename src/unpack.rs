@@ -1,20 +1,21 @@
 use crate::cli::*;
 use crate::input_validator::are_filepaths_ok;
-use anyhow::{Ok, Result, anyhow, bail};
-use clap::Parser;
-use std::{ffi::OsStr, fs::File, io::BufReader, path::PathBuf};
+use anyhow::{Ok, Result};
+use std::{fs::File, io::BufReader, path::PathBuf};
 use zip::ZipArchive;
 
 use crate::scratch::scratch_structs::*;
 
 pub struct UnpackArgs {
-    input: PathBuf,
-    output: PathBuf,
-    as_is: bool,
-    no_assets: bool,
+    pub input: PathBuf,
+    pub output: PathBuf,
+    pub as_is: bool,
+    pub no_assets: bool,
 }
 
-pub fn unpack(input: PathBuf, output: PathBuf, as_is: bool, cli_options: CliOptions) -> Result<()> {
+pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
+    let input = args.input;
+    let output = args.output;
     are_filepaths_ok(&input, &output, cli_options.force)?;
 
     println!("Beginning unpack...");
