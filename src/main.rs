@@ -1,6 +1,7 @@
 #![allow(unused)]
 
 mod cli;
+mod input_validator;
 mod scratch;
 mod unpack;
 mod unscratch;
