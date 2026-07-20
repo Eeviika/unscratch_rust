@@ -7,6 +7,13 @@ use zip::ZipArchive;
 
 use crate::scratch::scratch_structs::*;
 
+pub struct UnpackArgs {
+    input: PathBuf,
+    output: PathBuf,
+    as_is: bool,
+    no_assets: bool,
+}
+
 pub fn unpack(input: PathBuf, output: PathBuf, as_is: bool, cli_options: CliOptions) -> Result<()> {
     are_filepaths_ok(&input, &output, cli_options.force)?;
 
