@@ -12,8 +12,8 @@ pub fn derive_output(input: &Path) -> PathBuf {
     if let Some(stem) = input.file_stem() {
         out.set_file_name(format!("{}_out", stem.to_string_lossy()));
     } else {
-        println!("Warning: The input file has no name, so you should specify an output folder.");
-        println!("         Will output to the \"./unscratch_output\" folder instead.");
+        eprintln!("Warning: The input file has no name, so you should specify an output folder.");
+        eprintln!("         Will output to a folder called \"unscratch_output\" instead.");
         out.set_file_name("unscratch_output");
     }
 
