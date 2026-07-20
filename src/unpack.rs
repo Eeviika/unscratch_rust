@@ -7,7 +7,7 @@ use zip::ZipArchive;
 
 use crate::scratch::scratch_structs::*;
 
-pub fn unpack(input: PathBuf, output: PathBuf, as_is: bool, cli_options: CLIOptions) -> Result<()> {
+pub fn unpack(input: PathBuf, output: PathBuf, as_is: bool, cli_options: CliOptions) -> Result<()> {
     println!("Beginning unpack...");
 
     validate_inputs(&input, &output, cli_options.force)?;

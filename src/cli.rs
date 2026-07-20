@@ -33,7 +33,7 @@ pub enum CommandType {
 
 #[derive(Parser)]
 #[command(version, about, long_about = LONG_ABOUT, arg_required_else_help = true)]
-pub struct CLI {
+pub struct Cli {
     /// Tell Unscratch to print more info
     #[arg(short, long)]
     pub verbose: bool,
@@ -50,20 +50,20 @@ pub struct CLI {
     pub command: CommandType,
 }
 
-pub struct CLIOptions {
+pub struct CliOptions {
     pub verbose: bool,
     pub force: bool,
     pub dry_run: bool,
     pub silent: bool,
 }
 
-impl CLIOptions {
-    pub fn from_cli(cli: &CLI) -> Self {
+impl CliOptions {
+    pub fn from_cli(cli: &Cli) -> Self {
         let verbose = cli.verbose;
         let force = cli.force;
         let dry_run = cli.dry_run;
         let silent = cli.silent;
-        CLIOptions {
+        CliOptions {
             verbose,
             force,
             dry_run,

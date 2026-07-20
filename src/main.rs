@@ -17,8 +17,8 @@ use zip::ZipArchive;
 use crate::scratch::scratch_structs::ScratchProject;
 
 fn main() -> Result<()> {
-    let cli = CLI::parse();
-    let cli_options = CLIOptions::from_cli(&cli);
+    let cli = Cli::parse();
+    let cli_options = CliOptions::from_cli(&cli);
 
     match cli.command {
         CommandType::Unpack {
