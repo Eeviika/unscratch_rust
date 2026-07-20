@@ -1,10 +1,5 @@
-use anyhow::{Ok, Result, anyhow, bail};
-use std::{
-    ffi::OsStr,
-    fs::File,
-    io::BufReader,
-    path::{Path, PathBuf},
-};
+use anyhow::{Ok, Result, anyhow};
+use std::path::{Path, PathBuf};
 
 fn check(condition: bool, warning: &str, error: &str, force: bool) -> Result<()> {
     if condition {
