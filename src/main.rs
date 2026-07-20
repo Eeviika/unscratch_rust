@@ -31,7 +31,7 @@ fn main() -> Result<()> {
             };
             unpack(args, cli_options)?
         }
-        _ => bail!("not implemented"),
+        _ => todo!("implement other subcommands"),
     }
 
     Ok(())
