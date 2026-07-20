@@ -6,6 +6,12 @@ use zip::ZipArchive;
 
 use crate::scratch::scratch_structs::*;
 
+const ASSETS_FOLDERNAME: &str = "assets";
+const SOUNDS_FOLDERNAME: &str = "sounds";
+const COSTUMES_FOLDERNAME: &str = "costumes";
+const SPRITES_FOLDERNAME: &str = "sprites";
+const SCRIPTS_FOLDERNAME: &str = "scripts";
+
 pub struct UnpackArgs {
     pub input: PathBuf,
     pub output: PathBuf,
