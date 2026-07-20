@@ -1,18 +1,14 @@
-#![allow(unused)]
-
 mod cli;
 mod input_validator;
 mod scratch;
 mod unpack;
 mod unscratch;
 
-use anyhow::{Ok, Result, anyhow, bail};
+use anyhow::{Ok, Result, bail};
 use clap::Parser;
 use cli::*;
 use input_validator::derive_output;
 use unpack::unpack;
-
-use crate::scratch::scratch_structs::ScratchProject;
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
