@@ -1,5 +1,5 @@
 use crate::cli::*;
-use crate::input_validator::is_filepaths_ok;
+use crate::input_validator::are_filepaths_ok;
 use anyhow::{Ok, Result, anyhow, bail};
 use clap::Parser;
 use std::{ffi::OsStr, fs::File, io::BufReader, path::PathBuf};
@@ -10,7 +10,7 @@ use crate::scratch::scratch_structs::*;
 pub fn unpack(input: PathBuf, output: PathBuf, as_is: bool, cli_options: CliOptions) -> Result<()> {
     println!("Beginning unpack...");
 
-    is_filepaths_ok(&input, &output, cli_options.force)?;
+    are_filepaths_ok(&input, &output, cli_options.force)?;
 
     println!("Got project file.");
 

@@ -31,7 +31,7 @@ pub fn derive_output(input: &Path) -> PathBuf {
     out
 }
 
-pub fn is_filepaths_ok(input: &Path, output: &Path, force: bool) -> Result<()> {
+pub fn are_filepaths_ok(input: &Path, output: &Path, force: bool) -> Result<()> {
     check(input.exists(), "", "Input file does not exist.", false)?;
     check(input.is_file(), "", "Input must be a file.", false)?;
     check(
