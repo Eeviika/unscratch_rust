@@ -22,6 +22,9 @@ pub struct UnpackArgs {
 pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
     let input = args.input;
     let output = args.output;
+    let as_is = args.as_is;
+    let no_assets = args.no_assets;
+
     are_filepaths_ok(&input, &output, cli_options.force)?;
 
     println!("Beginning unpack...");
