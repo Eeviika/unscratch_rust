@@ -1,6 +1,6 @@
 use crate::cli::*;
 use crate::input_validator::are_filepaths_ok;
-use anyhow::{Ok, Result};
+use anyhow::{Ok, Result, anyhow};
 use file_format::{FileFormat, Kind};
 use std::{
     fs::{self, File},
@@ -37,11 +37,35 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
     let file = File::open(&input)?;
     let reader = BufReader::new(file);
 
+    let mut archive = ZipArchive::new(reader)?;
+
+    {
+        let input_stem = input.file_stem();
+        if input_stem.is_none() {
+            return Err(anyhow!(
+                "Cannot determine if the project file contains a top-level directory."
+            ));
+        }
+        let input_stem = input_stem.unwrap();
+        let input_stem_str = input_stem.to_str();
+        if input_stem_str.is_none() {
+            return Err(anyhow!(
+                "Cannot determine if the project file contains a top-level directory."
+            ));
+        }
+        let input_stem_str = input_stem_str.unwrap();
+        let result = archive.by_name(&format!("{input_stem_str}/"));
+        if result.is_ok() {
+            return Err(anyhow!(
+                "Your project file contains a top-level directory of the same name as the project file. \
+                This is usually caused by external editing software and is considered a bug."
+            ));
+        }
+    }
+
     create_folders(&output)?;
 
     println!("Scanning project file...");
-
-    let mut archive = ZipArchive::new(reader)?;
 
     if !no_assets {
         let pb = indicatif::ProgressBar::new_spinner();
@@ -108,7 +132,6 @@ where
 
         if kind == Kind::Audio || kind == Kind::Image {
             let name = file.name().to_owned();
-            // println!("{}", name);
             valid_filenames.push(name);
         }
     }
