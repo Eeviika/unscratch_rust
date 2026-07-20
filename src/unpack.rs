@@ -39,30 +39,6 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
 
     let mut archive = ZipArchive::new(reader)?;
 
-    {
-        let input_stem = input.file_stem();
-        if input_stem.is_none() {
-            return Err(anyhow!(
-                "Cannot determine if the project file contains a top-level directory."
-            ));
-        }
-        let input_stem = input_stem.unwrap();
-        let input_stem_str = input_stem.to_str();
-        if input_stem_str.is_none() {
-            return Err(anyhow!(
-                "Cannot determine if the project file contains a top-level directory."
-            ));
-        }
-        let input_stem_str = input_stem_str.unwrap();
-        let result = archive.by_name(&format!("{input_stem_str}/"));
-        if result.is_ok() {
-            return Err(anyhow!(
-                "Your project file contains a top-level directory of the same name as the project file. \
-                This is usually caused by external editing software and is considered a bug."
-            ));
-        }
-    }
-
     create_folders(&output)?;
 
     println!("Scanning project file...");
@@ -75,7 +51,14 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
         pb.finish();
     }
 
-    let json_file = archive.by_name("project.json")?;
+    let root_dir = archive.root_dir(zip::read::root_dir_common_filter)?;
+
+    let project_path = match root_dir {
+        Some(root) => root.join("project.json"),
+        None => PathBuf::from("project.json"),
+    };
+
+    let json_file = archive.by_name(project_path.to_str().unwrap())?;
 
     let pb = indicatif::ProgressBar::new_spinner();
     pb.set_message("Parsing project JSON...");
@@ -90,7 +73,7 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
 
 fn create_folders(output: &Path) -> Result<()> {
     if output.exists() {
-        fs::remove_dir_all(&output)?;
+        fs::remove_dir_all(output)?;
     }
 
     let assets = output.join(ASSETS_FOLDERNAME);
