@@ -11,6 +11,7 @@ use clap::Parser;
 use cli::*;
 use input_validator::derive_output;
 use std::{ffi::OsStr, fs::File, io::BufReader, path::PathBuf};
+use unpack::unpack;
 use zip::ZipArchive;
 
 use crate::scratch::scratch_structs::ScratchProject;
@@ -31,85 +32,6 @@ fn main() -> Result<()> {
         }
         _ => bail!("not implemented"),
     }
-
-    Ok(())
-}
-
-fn validate_inputs(input: &PathBuf, output: &PathBuf, force: bool) -> Result<()> {
-    if !input.exists() {
-        return Err(anyhow!("The input file must exist."));
-    }
-
-    if !input.is_file() {
-        return Err(anyhow!(
-            "The input was expected to be a file, but we found a directory."
-        ));
-    }
-
-    let ext = input.extension().unwrap_or(OsStr::new(""));
-
-    if ext.is_empty() && !force {
-        return Err(anyhow!(
-            "The input file doesn't have an extension. Did you select the right file?"
-        ));
-    } else if ext.is_empty() {
-        println!(
-            "The input file doesn't have an extension. Ignoring because we are forcing file operations."
-        )
-    }
-
-    if ext != "sb3" && !force {
-        return Err(anyhow!(
-            "The input file doesn't have an \".sb3\" extension, did you select the right file? Unscratch only supports Scratch 3."
-        ));
-    } else if ext != "sb3" {
-        println!(
-            "Warning: The input file doesn't have the \".sb3\" extension. Ignoring because we are forcing file operations."
-        );
-    }
-
-    if output.is_file() {
-        return Err(anyhow!(
-            "The output folder specified is an already existing file."
-        ));
-    }
-
-    if output.is_dir() && !force {
-        return Err(anyhow!(
-            "The output folder specified is an already existing folder."
-        ));
-    } else if output.is_dir() {
-        println!(
-            "Warning: Output folder specified already exists. Will delete because we are forcing file operations."
-        )
-    }
-
-    Ok(())
-}
-
-fn unpack(input: PathBuf, output: PathBuf, as_is: bool, cli_options: CLIOptions) -> Result<()> {
-    println!("Beginning unpack...");
-
-    validate_inputs(&input, &output, cli_options.force)?;
-
-    println!("Got project file.");
-
-    let file = File::open(&input)?;
-    let reader = BufReader::new(file);
-
-    println!("Scanning project file...");
-
-    let mut archive = ZipArchive::new(reader)?;
-
-    let json_file = archive.by_name("project.json")?;
-
-    let pb = indicatif::ProgressBar::new_spinner();
-    pb.set_message("Parsing project file...");
-    pb.enable_steady_tick(std::time::Duration::from_millis(100));
-
-    let scratch_project: ScratchProject = serde_json::from_reader(json_file)?;
-
-    pb.finish_with_message("Parsing project file... Done!");
 
     Ok(())
 }
