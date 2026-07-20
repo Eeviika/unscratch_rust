@@ -10,9 +10,7 @@ use anyhow::{Ok, Result, anyhow, bail};
 use clap::Parser;
 use cli::*;
 use input_validator::derive_output;
-use std::{ffi::OsStr, fs::File, io::BufReader, path::PathBuf};
 use unpack::unpack;
-use zip::ZipArchive;
 
 use crate::scratch::scratch_structs::ScratchProject;
 
