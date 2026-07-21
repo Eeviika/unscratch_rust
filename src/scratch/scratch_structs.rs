@@ -156,9 +156,9 @@ pub struct ScratchMonitor {
     pub height: u32,
     pub visible: bool,
     #[serde(rename = "sliderMin")]
-    pub slider_min: Option<isize>,
+    pub slider_min: Option<f32>,
     #[serde(rename = "sliderMax")]
-    pub slider_max: Option<isize>,
+    pub slider_max: Option<f32>,
     #[serde(rename = "isDiscrete")]
     pub is_discrete: Option<bool>,
 }
