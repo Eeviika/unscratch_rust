@@ -1,4 +1,4 @@
-use anyhow::{Ok, Result, anyhow};
+use anyhow::{Ok, Result, bail};
 use log::{debug, warn};
 use std::path::{Path, PathBuf};
 
@@ -10,7 +10,7 @@ fn check(condition: bool, warning: &str, error: &str, force: bool) -> Result<()>
         return Ok(());
     }
 
-    Err(anyhow!("{error}"))
+    bail!("{error}")
 }
 
 pub fn derive_output(input: &Path) -> PathBuf {

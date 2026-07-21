@@ -4,12 +4,11 @@ mod scratch;
 mod unpack;
 mod unscratch;
 
-use anyhow::{Ok, Result, bail};
+use anyhow::{Result, bail};
 use clap::Parser;
 use cli::*;
 use colog;
 use input_validator::derive_output;
-use log::error;
 
 use crate::unpack::{UnpackArgs, unpack};
 
