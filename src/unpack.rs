@@ -1,11 +1,11 @@
 use crate::cli::*;
 use crate::input_validator::are_filepaths_ok;
-use anyhow::{Ok, Result};
+use anyhow::{Ok, Result, bail};
 use file_format::{FileFormat, Kind};
 use log::{debug, info, warn};
 use std::{
     fs::{self, File},
-    io::{BufReader, Read, Seek, Write},
+    io::{BufReader, Error, Read, Seek, Write},
     path::{Path, PathBuf},
 };
 use zip::ZipArchive;
@@ -50,29 +50,13 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
 
     info!("Scanning project file...");
 
-    let root_dir = archive.root_dir(zip::read::root_dir_common_filter)?;
-
-    let project_path = match root_dir {
-        Some(root) => {
-            warn!(
-                "Project file contains top-level directory, which is unusual.\nThis will not affect output."
-            );
-            root.join("project.json")
-        }
-        None => PathBuf::from("project.json"),
-    };
-
     if !no_assets {
         info!("Exporting assets...");
         export_assets(&mut archive, &output)?;
         info!("Done!");
     }
 
-    let json_file = archive.by_name(project_path.to_str().unwrap())?;
-
-    info!("Deserializing project file (this may take a moment)...");
-    let scratch_project: ScratchProject = serde_json::from_reader(json_file)?;
-    info!("Done!");
+    export_project(&mut archive)?;
 
     Ok(())
 }
@@ -98,6 +82,43 @@ fn create_folders(output: &Path) -> Result<()> {
     Ok(())
 }
 
+fn deserialize_project<R>(archive: &mut ZipArchive<R>) -> Result<ScratchProject>
+where
+    R: Read + Seek,
+{
+    debug!("Preparing to deserialize...");
+    let root_dir = archive.root_dir(zip::read::root_dir_common_filter)?;
+
+    let project_path = match root_dir {
+        Some(root) => {
+            warn!(
+                "Project file contains top-level directory, which is unusual.\nThis will not affect output."
+            );
+            debug!("Root is {}", root.display());
+            root.join("project.json")
+        }
+        None => PathBuf::from("project.json"),
+    };
+
+    info!("Deserializing project file (this may take a while)...");
+    let mut json_file = archive.by_name(project_path.to_str().unwrap())?;
+    let mut json_string = String::new();
+    json_file.read_to_string(&mut json_string)?;
+    let result: ScratchProject = serde_json::from_str(&json_string)?;
+    info!("Done!");
+    Ok(result)
+}
+
+fn export_project<R>(archive: &mut ZipArchive<R>) -> Result<()>
+where
+    R: Read + Seek,
+{
+    info!("Exporting project...");
+    let project = deserialize_project(archive)?;
+
+    Ok(())
+}
+
 fn export_assets<R>(archive: &mut ZipArchive<R>, output_root: &Path) -> Result<()>
 where
     R: Read + Seek,
@@ -108,12 +129,10 @@ where
 
     for i in 0..archive.len() {
         let mut archive_file = archive.by_index(i)?;
+        let name = archive_file.name().to_owned();
 
         if archive_file.is_dir() {
-            debug!(
-                "skipping exporting asset {} as it is a directory",
-                archive_file.name()
-            );
+            debug!("skipping exporting asset {name} as it is a directory",);
             continue;
         }
 
@@ -124,10 +143,7 @@ where
         let kind = format.kind();
 
         if kind == Kind::Audio || kind == Kind::Image {
-            debug!(
-                "attempting to export asset {} as {kind:?}",
-                archive_file.name()
-            );
+            debug!("attempting to export asset {name} as {kind:?}",);
             let opt_path = archive_file.enclosed_name().to_owned();
 
             if opt_path.is_none() {
@@ -150,11 +166,7 @@ where
 
             let mut asset_file = File::create(&path)?;
             asset_file.write_all(&bytes)?;
-            debug!(
-                "exported asset {} as {kind:?} to {}",
-                archive_file.name(),
-                path.display()
-            )
+            debug!("exported asset {name} as {kind:?} to {}", path.display())
         }
     }
 
