@@ -1,11 +1,12 @@
 use anyhow::{Ok, Result, anyhow};
+use log::{debug, warn};
 use std::path::{Path, PathBuf};
 
 fn check(condition: bool, warning: &str, error: &str, force: bool) -> Result<()> {
     if condition {
         return Ok(());
     } else if force {
-        eprintln!("{warning}");
+        warn!("{warning}");
         return Ok(());
     }
 
@@ -13,13 +14,18 @@ fn check(condition: bool, warning: &str, error: &str, force: bool) -> Result<()>
 }
 
 pub fn derive_output(input: &Path) -> PathBuf {
+    debug!("deriving output from {}", input.display());
     let mut out = input.to_path_buf();
 
     if let Some(stem) = input.file_stem() {
-        out.set_file_name(format!("{}_out", stem.to_string_lossy()));
+        let name = format!("{}_out", stem.to_string_lossy());
+        debug!("derived output as {name}");
+        out.set_file_name(name);
     } else {
-        eprintln!("Warning: The input file has no name, so you should specify an output folder.");
-        eprintln!("         Will output to a folder called \"unscratch_output\" instead.");
+        warn!(
+            "The input file has no name, so you should specify an output folder.\n
+            Will output to a folder called \"unscratch_output\" instead."
+        );
         out.set_file_name("unscratch_output");
     }
 

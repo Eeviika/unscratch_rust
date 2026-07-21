@@ -1,7 +1,8 @@
 use crate::cli::*;
 use crate::input_validator::are_filepaths_ok;
-use anyhow::{Ok, Result, anyhow};
+use anyhow::{Ok, Result};
 use file_format::{FileFormat, Kind};
+use log::{debug, info, warn};
 use std::{
     fs::{self, File},
     io::{BufReader, Read, Seek, Write},
@@ -30,9 +31,15 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
     let as_is = args.as_is;
     let no_assets = args.no_assets;
 
+    debug!(
+        "unpacking {} to {}\nas is? {as_is}\nwithout assets? {no_assets}",
+        input.display(),
+        output.display()
+    );
+
     are_filepaths_ok(&input, &output, cli_options.force)?;
 
-    println!("Beginning unpack...");
+    info!("Beginning unpack...");
 
     let file = File::open(&input)?;
     let reader = BufReader::new(file);
@@ -41,32 +48,31 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
 
     create_folders(&output)?;
 
-    println!("Scanning project file...");
-
-    if !no_assets {
-        let pb = indicatif::ProgressBar::new_spinner();
-        pb.set_message("Exporting assets...");
-        pb.enable_steady_tick(std::time::Duration::from_millis(100));
-        export_assets(&mut archive, &output)?;
-        pb.finish();
-    }
+    info!("Scanning project file...");
 
     let root_dir = archive.root_dir(zip::read::root_dir_common_filter)?;
 
     let project_path = match root_dir {
-        Some(root) => root.join("project.json"),
+        Some(root) => {
+            warn!(
+                "Project file contains top-level directory, which is unusual.\nThis will not affect output."
+            );
+            root.join("project.json")
+        }
         None => PathBuf::from("project.json"),
     };
 
+    if !no_assets {
+        info!("Exporting assets...");
+        export_assets(&mut archive, &output)?;
+        info!("Done!");
+    }
+
     let json_file = archive.by_name(project_path.to_str().unwrap())?;
 
-    let pb = indicatif::ProgressBar::new_spinner();
-    pb.set_message("Parsing project JSON...");
-    pb.enable_steady_tick(std::time::Duration::from_millis(100));
-
+    info!("Deserializing project file (this may take a moment)...");
     let scratch_project: ScratchProject = serde_json::from_reader(json_file)?;
-
-    pb.finish();
+    info!("Done!");
 
     Ok(())
 }
@@ -74,6 +80,7 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
 fn create_folders(output: &Path) -> Result<()> {
     if output.exists() {
         fs::remove_dir_all(output)?;
+        debug!("removed {} as it already existed", output.display())
     }
 
     let assets = output.join(ASSETS_FOLDERNAME);
@@ -87,6 +94,7 @@ fn create_folders(output: &Path) -> Result<()> {
     fs::create_dir_all(costumes)?;
     fs::create_dir_all(sprites)?;
     fs::create_dir_all(scripts)?;
+    info!("Created output directory.");
     Ok(())
 }
 
@@ -102,6 +110,10 @@ where
         let mut archive_file = archive.by_index(i)?;
 
         if archive_file.is_dir() {
+            debug!(
+                "skipping exporting asset {} as it is a directory",
+                archive_file.name()
+            );
             continue;
         }
 
@@ -112,6 +124,10 @@ where
         let kind = format.kind();
 
         if kind == Kind::Audio || kind == Kind::Image {
+            debug!(
+                "attempting to export asset {} as {kind:?}",
+                archive_file.name()
+            );
             let opt_path = archive_file.enclosed_name().to_owned();
 
             if opt_path.is_none() {
@@ -132,8 +148,13 @@ where
                 _ => assets.join(enclosed_name),
             };
 
-            let mut asset_file = File::create(path)?;
+            let mut asset_file = File::create(&path)?;
             asset_file.write_all(&bytes)?;
+            debug!(
+                "exported asset {} as {kind:?} to {}",
+                archive_file.name(),
+                path.display()
+            )
         }
     }
 

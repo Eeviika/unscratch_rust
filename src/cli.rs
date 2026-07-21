@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
 const LONG_ABOUT: &str = "A CLI tool to pack and unpack Scratch project files.";
@@ -43,7 +43,7 @@ pub struct Cli {
     /// Do not perform any file operations
     #[arg(short, long)]
     pub dry_run: bool,
-    /// Do not output any logs
+    /// Do not output any logs (except for fatal errors)
     #[arg(short, long)]
     pub silent: bool,
     #[command(subcommand)]
