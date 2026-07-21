@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(untagged)]
 pub enum ScratchValue {
     Boolean(bool),
@@ -11,21 +11,21 @@ pub enum ScratchValue {
     Text(String),
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(untagged)]
 pub enum ScratchMonitorValue {
     Item(ScratchValue),
     List(Vec<ScratchValue>),
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(untagged)]
 pub enum ScratchBlockEntry {
     Block(ScratchBlock),
     Reporter(ScratchReporter),
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 #[serde(untagged)]
 pub enum ScratchReporter {
     Primitive(u8, String),
@@ -33,7 +33,7 @@ pub enum ScratchReporter {
     TopLevel(u8, String, String, f64, f64),
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchProjectMetadata {
     pub semver: String,
     pub vm: String,
@@ -41,13 +41,13 @@ pub struct ScratchProjectMetadata {
     pub platform: Option<ScratchPlatformMetadata>, // Turbowarp Compat.
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchPlatformMetadata {
     pub name: String,
     pub url: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchBlock {
     pub opcode: String,
     pub next: Option<String>,
@@ -61,13 +61,13 @@ pub struct ScratchBlock {
     pub y: Option<f32>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchVariable(pub String, pub ScratchValue);
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchList(pub String, pub Vec<ScratchValue>);
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchComment {
     #[serde(rename = "blockId")]
     pub block_id: Option<String>,
@@ -79,7 +79,7 @@ pub struct ScratchComment {
     pub text: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchCostume {
     pub name: String,
     #[serde(rename = "bitmapResolution")]
@@ -95,7 +95,7 @@ pub struct ScratchCostume {
     pub rotation_center_y: f32,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchSound {
     pub name: String,
     #[serde(rename = "assetId")]
@@ -109,7 +109,7 @@ pub struct ScratchSound {
     pub md5ext: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchTarget {
     pub x: Option<f32>,
     pub y: Option<f32>,
@@ -143,7 +143,7 @@ pub struct ScratchTarget {
     pub sounds: Vec<ScratchSound>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchMonitor {
     pub id: String,
     pub mode: String,
@@ -163,7 +163,7 @@ pub struct ScratchMonitor {
     pub is_discrete: Option<bool>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchProject {
     pub targets: Vec<ScratchTarget>,
     pub monitors: Vec<ScratchMonitor>,
