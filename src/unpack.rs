@@ -56,7 +56,7 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
         info!("Done!");
     }
 
-    export_project(&mut archive)?;
+    export_project(&mut archive, &output)?;
 
     Ok(())
 }
@@ -109,21 +109,36 @@ where
     Ok(result)
 }
 
-fn export_project<R>(archive: &mut ZipArchive<R>) -> Result<()>
+fn export_project<R>(archive: &mut ZipArchive<R>, output: &Path) -> Result<()>
 where
     R: Read + Seek,
 {
     info!("Exporting project...");
     let project = deserialize_project(archive)?;
+    let sprites_path = output.join(SPRITES_FOLDERNAME);
+    let meta = project.meta;
+
+    debug!("{meta:#?}");
+    debug!("Extensions:     {:?}", project.extensions);
+    debug!("Extension URLs: {:?}", project.extension_urls);
+
+    info!("Exporting sprites...");
+    for target in project.targets {
+        let filename = format!("{}.json", &target.name);
+        let path = sprites_path.join(filename);
+        let mut file = File::create(path)?;
+        let string = serde_json::to_string_pretty(&target)?;
+        file.write(string.as_bytes())?;
+    }
 
     Ok(())
 }
 
-fn export_assets<R>(archive: &mut ZipArchive<R>, output_root: &Path) -> Result<()>
+fn export_assets<R>(archive: &mut ZipArchive<R>, output: &Path) -> Result<()>
 where
     R: Read + Seek,
 {
-    let assets = output_root.join(ASSETS_FOLDERNAME);
+    let assets = output.join(ASSETS_FOLDERNAME);
     let sounds = assets.join(SOUNDS_FOLDERNAME);
     let costumes = assets.join(COSTUMES_FOLDERNAME);
 
