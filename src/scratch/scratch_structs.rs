@@ -158,8 +158,10 @@ pub struct ScratchMonitor {
     #[serde(rename = "spriteName")]
     pub sprite_name: Option<String>,
     pub value: ScratchMonitorValue,
-    pub width: u32,
-    pub height: u32,
+    pub width: f32,
+    pub height: f32,
+    pub x: f32,
+    pub y: f32,
     pub visible: bool,
     #[serde(rename = "sliderMin")]
     pub slider_min: Option<f32>,
