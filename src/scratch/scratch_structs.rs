@@ -52,7 +52,9 @@ pub struct ScratchBlock {
     pub opcode: String,
     pub next: Option<String>,
     pub parent: Option<String>,
+    #[serde(skip)]
     pub inputs: HashMap<String, Vec<Value>>, // i hate scratch so much
+    #[serde(skip)]
     pub fields: HashMap<String, Vec<Value>>, // this is why scratch sucks
     pub shadow: bool,
     #[serde(rename = "topLevel")]
