@@ -62,7 +62,11 @@ pub struct ScratchBlock {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct ScratchVariable(pub String, pub ScratchValue);
+pub struct ScratchVariable(
+    pub String,
+    pub ScratchValue,
+    #[serde(default)] pub Option<bool>,
+);
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchList(pub String, pub Vec<ScratchValue>);
@@ -124,7 +128,7 @@ pub struct ScratchTarget {
     pub name: String,
     #[serde(rename = "currentCostume")]
     pub current_costume: u32,
-    pub volume: u32,
+    pub volume: f32,
     #[serde(rename = "layerOrder")]
     pub layer_order: u32,
     pub tempo: Option<u32>,
