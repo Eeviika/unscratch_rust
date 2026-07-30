@@ -124,8 +124,17 @@ where
 
     info!("Exporting sprites...");
     for target in project.targets {
+        if target.variables.is_empty() && target.lists.is_empty() && target.blocks.is_empty() {
+            warn!("Not exporting sprite {} as it is blank.", target.name);
+            continue;
+        }
         let filename = format!("{}.json", &target.name);
         let path = sprites_path.join(filename);
+        debug!(
+            "attempting to export sprite {} as JSON to {}",
+            &target.name,
+            path.display()
+        );
         let mut file = File::create(path)?;
         let string = serde_json::to_string_pretty(&target)?;
         file.write(string.as_bytes())?;
