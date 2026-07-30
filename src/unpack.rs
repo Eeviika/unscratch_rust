@@ -1,11 +1,11 @@
 use crate::cli::*;
 use crate::input_validator::are_filepaths_ok;
-use anyhow::{Ok, Result, bail};
+use anyhow::Result;
 use file_format::{FileFormat, Kind};
 use log::{debug, info, warn};
 use std::{
     fs::{self, File},
-    io::{BufReader, Error, Read, Seek, Write},
+    io::{BufReader, Read, Seek, Write},
     path::{Path, PathBuf},
 };
 use zip::ZipArchive;
@@ -26,10 +26,12 @@ pub struct UnpackArgs {
 }
 
 pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
-    let input = args.input;
-    let output = args.output;
-    let as_is = args.as_is;
-    let no_assets = args.no_assets;
+    let UnpackArgs {
+        input,
+        output,
+        as_is,
+        no_assets,
+    } = args;
 
     debug!(
         "unpacking {} to {}\nas is? {as_is}\nwithout assets? {no_assets}",
@@ -46,7 +48,7 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
 
     let mut archive = ZipArchive::new(reader)?;
 
-    create_folders(&output)?;
+    create_output_tree(&output)?;
 
     info!("Scanning project file...");
 
@@ -61,10 +63,10 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
     Ok(())
 }
 
-fn create_folders(output: &Path) -> Result<()> {
+fn create_output_tree(output: &Path) -> Result<()> {
     if output.exists() {
         fs::remove_dir_all(output)?;
-        debug!("removed {} as it already existed", output.display())
+        debug!("removed {} as it already existed", output.display());
     }
 
     let assets = output.join(ASSETS_FOLDERNAME);
@@ -73,12 +75,11 @@ fn create_folders(output: &Path) -> Result<()> {
     let sprites = output.join(SPRITES_FOLDERNAME);
     let scripts = output.join(SCRIPTS_FOLDERNAME);
 
-    fs::create_dir_all(assets)?;
-    fs::create_dir_all(sounds)?;
-    fs::create_dir_all(costumes)?;
-    fs::create_dir_all(sprites)?;
-    fs::create_dir_all(scripts)?;
-    info!("Created output directory.");
+    for directory in [assets, sounds, costumes, sprites, scripts] {
+        fs::create_dir_all(directory)?;
+    }
+
+    info!("Created output directory tree.");
     Ok(())
 }
 
@@ -86,27 +87,32 @@ fn deserialize_project<R>(archive: &mut ZipArchive<R>) -> Result<ScratchProject>
 where
     R: Read + Seek,
 {
-    debug!("Preparing to deserialize...");
-    let root_dir = archive.root_dir(zip::read::root_dir_common_filter)?;
+    debug!("Preparing to deserialize project file...");
+    let project_path = project_json_path(archive)?;
 
-    let project_path = match root_dir {
+    info!("Deserializing project file (this may take a while)...");
+    let mut json_file = archive.by_name(project_path.to_string_lossy().as_ref())?;
+    let mut json_string = String::new();
+    json_file.read_to_string(&mut json_string)?;
+    let result = serde_json::from_str(&json_string)?;
+    info!("Done!");
+    Ok(result)
+}
+
+fn project_json_path<R>(archive: &ZipArchive<R>) -> Result<PathBuf>
+where
+    R: Read + Seek,
+{
+    match archive.root_dir(zip::read::root_dir_common_filter)? {
         Some(root) => {
             warn!(
                 "Project file contains top-level directory, which is unusual.\nThis will not affect output."
             );
             debug!("Root is {}", root.display());
-            root.join("project.json")
+            Ok(root.join("project.json"))
         }
-        None => PathBuf::from("project.json"),
-    };
-
-    info!("Deserializing project file (this may take a while)...");
-    let mut json_file = archive.by_name(project_path.to_str().unwrap())?;
-    let mut json_string = String::new();
-    json_file.read_to_string(&mut json_string)?;
-    let result: ScratchProject = serde_json::from_str(&json_string)?;
-    info!("Done!");
-    Ok(result)
+        None => Ok(PathBuf::from("project.json")),
+    }
 }
 
 fn export_project<R>(archive: &mut ZipArchive<R>, output: &Path) -> Result<()>
@@ -124,21 +130,30 @@ where
 
     info!("Exporting sprites...");
     for target in project.targets {
-        if target.variables.is_empty() && target.lists.is_empty() && target.blocks.is_empty() {
-            warn!("Not exporting sprite {} as it is blank.", target.name);
-            continue;
-        }
-        let filename = format!("{}.json", &target.name);
-        let path = sprites_path.join(filename);
-        debug!(
-            "attempting to export sprite {} as JSON to {}",
-            &target.name,
-            path.display()
-        );
-        let mut file = File::create(path)?;
-        let string = serde_json::to_string_pretty(&target)?;
-        file.write(string.as_bytes())?;
+        export_sprite(target, &sprites_path)?;
     }
+
+    Ok(())
+}
+
+fn export_sprite(target: ScratchTarget, sprites_path: &Path) -> Result<()> {
+    let sprite_name = &target.name;
+
+    if target.variables.is_empty() && target.lists.is_empty() && target.blocks.is_empty() {
+        warn!("Not exporting sprite {} as it is blank.", sprite_name);
+        return Ok(());
+    }
+
+    let path = sprites_path.join(format!("{sprite_name}.json"));
+    debug!(
+        "attempting to export sprite {} as JSON to {}",
+        sprite_name,
+        path.display()
+    );
+
+    let json = serde_json::to_string_pretty(&target)?;
+    let mut file = File::create(path)?;
+    file.write_all(json.as_bytes())?;
 
     Ok(())
 }
@@ -163,36 +178,29 @@ where
         let mut bytes = Vec::new();
         archive_file.read_to_end(&mut bytes)?;
 
-        let format = FileFormat::from_bytes(&bytes);
-        let kind = format.kind();
+        let kind = FileFormat::from_bytes(&bytes).kind();
 
-        if kind == Kind::Audio || kind == Kind::Image {
-            debug!("attempting to export asset {name} as {kind:?}",);
-            let opt_path = archive_file.enclosed_name().to_owned();
+        if matches!(kind, Kind::Audio | Kind::Image) {
+            debug!("attempting to export asset {name} as {kind:?}");
 
-            if opt_path.is_none() {
+            let Some(enclosed_path) = archive_file.enclosed_name() else {
                 continue;
-            }
-
-            let enclosed_path = opt_path.unwrap();
-            let opt_name = enclosed_path.file_name();
-
-            if opt_name.is_none() {
+            };
+            let Some(file_name) = enclosed_path.file_name() else {
                 continue;
-            }
+            };
 
-            let enclosed_name = opt_name.unwrap();
             let path = match kind {
-                Kind::Image => costumes.join(enclosed_name),
-                Kind::Audio => sounds.join(enclosed_name),
-                _ => assets.join(enclosed_name),
+                Kind::Image => costumes.join(file_name),
+                Kind::Audio => sounds.join(file_name),
+                _ => assets.join(file_name),
             };
 
             let mut asset_file = File::create(&path)?;
             asset_file.write_all(&bytes)?;
-            debug!("exported asset {name} as {kind:?} to {}", path.display())
+            debug!("exported asset {name} as {kind:?} to {}", path.display());
         }
     }
 
-    return Ok(());
+    Ok(())
 }
