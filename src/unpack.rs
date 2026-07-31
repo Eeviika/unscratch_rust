@@ -17,6 +17,7 @@ const SOUNDS_FOLDERNAME: &str = "sounds";
 const COSTUMES_FOLDERNAME: &str = "costumes";
 const SPRITES_FOLDERNAME: &str = "sprites";
 const SCRIPTS_FOLDERNAME: &str = "scripts";
+const DATA_FOLDERNAME: &str = "data";
 
 pub struct UnpackArgs {
     pub input: PathBuf,
@@ -74,8 +75,9 @@ fn create_output_tree(output: &Path) -> Result<()> {
     let costumes = assets.join(COSTUMES_FOLDERNAME);
     let sprites = output.join(SPRITES_FOLDERNAME);
     let scripts = output.join(SCRIPTS_FOLDERNAME);
+    let data = output.join(DATA_FOLDERNAME);
 
-    for directory in [assets, sounds, costumes, sprites, scripts] {
+    for directory in [assets, sounds, costumes, sprites, scripts, data] {
         fs::create_dir_all(directory)?;
     }
 
@@ -121,7 +123,6 @@ where
 {
     info!("Exporting project...");
     let project = deserialize_project(archive)?;
-    let sprites_path = output.join(SPRITES_FOLDERNAME);
     let meta = project.meta;
 
     debug!("{meta:#?}");
@@ -131,11 +132,11 @@ where
     info!("Exporting sprites...");
     if as_is {
         for target in project.targets {
-            export_sprite_as_is(target, &sprites_path)?;
+            export_sprite_as_is(target, &output)?;
         }
     } else {
         for target in project.targets {
-            export_reformatted_sprite(target, &sprites_path)?;
+            export_reformatted_sprite(target, &output)?;
         }
     }
 
@@ -157,7 +158,7 @@ fn export_reformatted_sprite(target: ScratchTarget, sprites_path: &Path) -> Resu
         path.display()
     );
 
-    let sprite = Sprite::from(target);
+    let sprite = Sprite::try_from(target)?;
     let toml = toml::to_string_pretty(&sprite)?;
     let mut file = File::create(path)?;
     file.write_all(toml.as_bytes())?;
@@ -165,7 +166,10 @@ fn export_reformatted_sprite(target: ScratchTarget, sprites_path: &Path) -> Resu
     Ok(())
 }
 
-fn export_sprite_as_is(target: ScratchTarget, sprites_path: &Path) -> Result<()> {
+fn export_sprite_as_is(target: ScratchTarget, output: &Path) -> Result<()> {
+    let sprites_path = output.join(SPRITES_FOLDERNAME);
+    let lists_path = output.join(DATA_FOLDERNAME);
+
     let sprite_name = &target.name;
 
     if target.variables.is_empty() && target.lists.is_empty() && target.blocks.is_empty() {
@@ -173,16 +177,22 @@ fn export_sprite_as_is(target: ScratchTarget, sprites_path: &Path) -> Result<()>
         return Ok(());
     }
 
-    let path = sprites_path.join(format!("{sprite_name}.json"));
+    let sprite_path = sprites_path.join(format!("{sprite_name}.json"));
+    let list_path = lists_path.join(format!("{sprite_name}.lists.json"));
+
     debug!(
         "attempting to export sprite {} as JSON to {}",
         sprite_name,
-        path.display()
+        sprite_path.display()
     );
 
-    let json = serde_json::to_string_pretty(&target)?;
-    let mut file = File::create(path)?;
-    file.write_all(json.as_bytes())?;
+    let sprite_json = serde_json::to_string_pretty(&target)?;
+    let mut file = File::create(sprite_path)?;
+    file.write_all(sprite_json.as_bytes())?;
+
+    let list_json = serde_json::to_string_pretty(&target.lists)?;
+    let mut file = File::create(list_path)?;
+    file.write_all(list_json.as_bytes())?;
 
     Ok(())
 }
