@@ -1,5 +1,5 @@
-use crate::cli::*;
 use crate::input_validator::are_filepaths_ok;
+use crate::{cli::*, unscratch::sprite::Sprite};
 use anyhow::Result;
 use file_format::{FileFormat, Kind};
 use log::{debug, info, warn};
@@ -58,7 +58,7 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
         info!("Done!");
     }
 
-    export_project(&mut archive, &output)?;
+    export_project(&mut archive, &output, as_is)?;
 
     Ok(())
 }
@@ -115,7 +115,7 @@ where
     }
 }
 
-fn export_project<R>(archive: &mut ZipArchive<R>, output: &Path) -> Result<()>
+fn export_project<R>(archive: &mut ZipArchive<R>, output: &Path, as_is: bool) -> Result<()>
 where
     R: Read + Seek,
 {
@@ -129,14 +129,43 @@ where
     debug!("Extension URLs: {:?}", project.extension_urls);
 
     info!("Exporting sprites...");
-    for target in project.targets {
-        export_sprite(target, &sprites_path)?;
+    if as_is {
+        for target in project.targets {
+            export_sprite_as_is(target, &sprites_path)?;
+        }
+    } else {
+        for target in project.targets {
+            export_reformatted_sprite(target, &sprites_path)?;
+        }
     }
 
     Ok(())
 }
 
-fn export_sprite(target: ScratchTarget, sprites_path: &Path) -> Result<()> {
+fn export_reformatted_sprite(target: ScratchTarget, sprites_path: &Path) -> Result<()> {
+    let sprite_name = &target.name;
+
+    if target.variables.is_empty() && target.lists.is_empty() && target.blocks.is_empty() {
+        warn!("Not exporting sprite {} as it is blank.", sprite_name);
+        return Ok(());
+    }
+
+    let path = sprites_path.join(format!("{sprite_name}.toml"));
+    debug!(
+        "attempting to export sprite {} as reformatted TOML to {}",
+        sprite_name,
+        path.display()
+    );
+
+    let sprite = Sprite::from(target);
+    let toml = toml::to_string_pretty(&sprite)?;
+    let mut file = File::create(path)?;
+    file.write_all(toml.as_bytes())?;
+
+    Ok(())
+}
+
+fn export_sprite_as_is(target: ScratchTarget, sprites_path: &Path) -> Result<()> {
     let sprite_name = &target.name;
 
     if target.variables.is_empty() && target.lists.is_empty() && target.blocks.is_empty() {
