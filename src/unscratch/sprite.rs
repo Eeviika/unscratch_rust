@@ -34,18 +34,23 @@ pub struct LooksData {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct AudioData {
     volume: f32,
+    #[serde(skip_serializing_if = "Option::is_none")]
     tts_language: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     tempo: Option<u32>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct VideoData {
+    #[serde(skip_serializing_if = "Option::is_none")]
     video_transparency: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     video_state: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct CostumeData {
+    #[serde(skip_serializing_if = "Option::is_none")]
     bitmap_resolution: Option<u32>,
     md5_hash: String,
     asset_id: String,
