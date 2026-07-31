@@ -64,11 +64,7 @@ pub struct ScratchBlock {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct ScratchVariable(
-    pub String,
-    pub ScratchValue,
-    #[serde(default)] pub Option<bool>,
-);
+pub struct ScratchVariable(pub String, pub ScratchValue, #[serde(default)] pub bool);
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchList(pub String, pub Vec<ScratchValue>);
