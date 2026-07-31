@@ -121,12 +121,14 @@ pub struct ScratchTarget {
     pub y: Option<f32>,
     pub size: Option<f32>,
     pub direction: Option<f32>,
-    pub visible: Option<bool>,
-    pub draggable: Option<bool>,
+    #[serde(default)]
+    pub visible: bool,
+    #[serde(default)]
+    pub draggable: bool,
     #[serde(rename = "rotationStyle")]
     pub rotation_style: Option<String>,
-    #[serde(rename = "isStage")]
-    pub is_stage: Option<bool>,
+    #[serde(rename = "isStage", default)]
+    pub is_stage: bool,
     pub name: String,
     #[serde(rename = "currentCostume")]
     pub current_costume: u32,
@@ -167,7 +169,7 @@ pub struct ScratchMonitor {
     pub slider_min: Option<f32>,
     #[serde(rename = "sliderMax")]
     pub slider_max: Option<f32>,
-    #[serde(rename = "isDiscrete")]
+    #[serde(rename = "isDiscrete", default)]
     pub is_discrete: Option<bool>,
 }
 
