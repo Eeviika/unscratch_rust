@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Sprite {
     pub general: GeneralData,
     pub looks: LooksData,
@@ -11,6 +12,7 @@ pub struct Sprite {
     pub sounds: HashMap<String, SoundData>,
 }
 
+#[derive(Deserialize, Serialize, Debug)]
 pub struct GeneralData {
     name: String,
     x: f32,
@@ -20,6 +22,7 @@ pub struct GeneralData {
     is_stage: bool,
 }
 
+#[derive(Deserialize, Serialize, Debug)]
 pub struct LooksData {
     visible: bool,
     draggable: bool,
@@ -28,17 +31,20 @@ pub struct LooksData {
     layer: u32,
 }
 
+#[derive(Deserialize, Serialize, Debug)]
 pub struct AudioData {
     volume: f32,
     tts_language: Option<String>,
     tempo: Option<u32>,
 }
 
+#[derive(Deserialize, Serialize, Debug)]
 pub struct VideoData {
     video_transparency: Option<String>,
     video_state: Option<String>,
 }
 
+#[derive(Deserialize, Serialize, Debug)]
 pub struct CostumeData {
     bitmap_resolution: Option<u32>,
     md5_hash: String,
@@ -48,6 +54,7 @@ pub struct CostumeData {
     center_y: f32,
 }
 
+#[derive(Deserialize, Serialize, Debug)]
 pub struct SoundData {
     rate: u32,
     sample_count: u32,
@@ -56,12 +63,15 @@ pub struct SoundData {
     asset_filename: String,
 }
 
+#[derive(Deserialize, Serialize, Debug)]
 pub enum RotationStyle {
     DontRotate,
     LeftRight,
     AllAround,
 }
 
+#[derive(Deserialize, Serialize, Debug)]
+#[serde(untagged)]
 pub enum VariableValue {
     Boolean(bool),
     Number(f32),
