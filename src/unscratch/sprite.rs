@@ -1,3 +1,4 @@
+use anyhow::{bail, Error};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -99,56 +100,82 @@ impl From<ScratchValue> for VariableValue {
     }
 }
 
-impl From<&str> for RotationStyle {
-    fn from(value: &str) -> Self {
+impl TryFrom<&str> for RotationStyle {
+    type Error = Error;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
-            "all around" => Self::AllAround,
-            "don't rotate" => Self::DontRotate,
-            "left-right" => Self::LeftRight,
-            _ => panic!("invalid rotation style type"),
+            "all around" => Ok(Self::AllAround),
+            "don't rotate" => Ok(Self::DontRotate),
+            "left-right" => Ok(Self::LeftRight),
+            _ => bail!("invalid rotation style type: {value}"),
         }
     }
 }
 
-impl From<ScratchTarget> for Sprite {
-    fn from(target: ScratchTarget) -> Self {
-        let rotation_style: Option<RotationStyle> = match target.rotation_style {
-            None => None,
-            Some(style) => Some(RotationStyle::from(&*style)),
-        };
+impl TryFrom<ScratchTarget> for Sprite {
+    type Error = Error;
+
+    fn try_from(target: ScratchTarget) -> Result<Self, Self::Error> {
+        let ScratchTarget {
+            x,
+            y,
+            size,
+            direction,
+            visible,
+            draggable,
+            rotation_style,
+            is_stage,
+            name,
+            current_costume,
+            volume,
+            layer_order,
+            tempo,
+            video_transparency,
+            text_to_speech_language,
+            video_state,
+            variables: scratch_variables,
+            costumes: scratch_costumes,
+            sounds: scratch_sounds,
+            ..
+        } = target;
+
+        let rotation_style = rotation_style
+            .map(|style| RotationStyle::try_from(style.as_str()))
+            .transpose()?;
 
         let general = GeneralData {
-            name: target.name,
-            x: target.x,
-            y: target.y,
-            size: target.size,
-            direction: target.direction,
-            is_stage: target.is_stage,
+            name,
+            x,
+            y,
+            size,
+            direction,
+            is_stage,
         };
 
         let looks = LooksData {
-            visible: target.visible,
-            draggable: target.draggable,
-            current_costume: target.current_costume,
-            layer: target.layer_order,
-            rotation_style: rotation_style,
+            visible,
+            draggable,
+            current_costume,
+            layer: layer_order,
+            rotation_style,
         };
 
         let audio = AudioData {
-            volume: target.volume,
-            tts_language: target.text_to_speech_language,
-            tempo: target.tempo,
+            volume,
+            tts_language: text_to_speech_language,
+            tempo,
         };
 
         let video = VideoData {
-            video_transparency: target.video_transparency,
-            video_state: target.video_state,
+            video_transparency,
+            video_state,
         };
 
-        let mut variables: HashMap<String, VariableValue> = HashMap::new();
-        let mut cloud_variables: HashMap<String, VariableValue> = HashMap::new();
+        let mut variables = HashMap::with_capacity(scratch_variables.len());
+        let mut cloud_variables = HashMap::with_capacity(scratch_variables.len());
 
-        for ScratchVariable(name, value, is_cloud) in target.variables.into_values() {
+        for ScratchVariable(name, value, is_cloud) in scratch_variables.into_values() {
             let value = VariableValue::from(value);
 
             if is_cloud {
@@ -158,31 +185,34 @@ impl From<ScratchTarget> for Sprite {
             }
         }
 
-        let mut costumes: HashMap<String, CostumeData> = HashMap::new();
-        let mut sounds: HashMap<String, SoundData> = HashMap::new();
+        let costumes = scratch_costumes
+            .into_iter()
+            .map(|costume| {
+                let data = CostumeData {
+                    bitmap_resolution: costume.bitmap_resolution,
+                    md5_hash: costume.md5ext,
+                    asset_filename: costume.asset_id,
+                    center_x: costume.rotation_center_x,
+                    center_y: costume.rotation_center_y,
+                };
+                (costume.name, data)
+            })
+            .collect();
 
-        for costume in target.costumes {
-            let data = CostumeData {
-                bitmap_resolution: costume.bitmap_resolution,
-                md5_hash: costume.md5ext,
-                asset_filename: costume.asset_id,
-                center_x: costume.rotation_center_x,
-                center_y: costume.rotation_center_y,
-            };
-            costumes.insert(costume.name, data);
-        }
+        let sounds = scratch_sounds
+            .into_iter()
+            .map(|sound| {
+                let data = SoundData {
+                    rate: sound.rate,
+                    sample_count: sound.sample_count,
+                    md5_hash: sound.md5ext,
+                    asset_filename: sound.asset_id,
+                };
+                (sound.name, data)
+            })
+            .collect();
 
-        for sound in target.sounds {
-            let data = SoundData {
-                rate: sound.rate,
-                sample_count: sound.sample_count,
-                md5_hash: sound.md5ext,
-                asset_filename: sound.asset_id,
-            };
-            sounds.insert(sound.name, data);
-        }
-
-        Self {
+        Ok(Self {
             general,
             looks,
             audio,
@@ -191,6 +221,6 @@ impl From<ScratchTarget> for Sprite {
             cloud_variables,
             costumes,
             sounds,
-        }
+        })
     }
 }
