@@ -7,7 +7,6 @@ mod unscratch;
 use anyhow::{Result, bail};
 use clap::Parser;
 use cli::*;
-use colog;
 use input_validator::derive_output;
 
 use crate::unpack::{UnpackArgs, unpack};
@@ -31,7 +30,7 @@ fn main() -> Result<()> {
 
     clog.init();
 
-    let result = match cli.command {
+    match cli.command {
         CommandType::Unpack {
             input,
             output,
@@ -48,7 +47,5 @@ fn main() -> Result<()> {
             unpack(args, cli_options)
         }
         _ => todo!("implement other subcommands"),
-    };
-
-    result
+    }
 }

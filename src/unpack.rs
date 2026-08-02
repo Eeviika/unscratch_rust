@@ -132,11 +132,11 @@ where
     info!("Exporting sprites...");
     if as_is {
         for target in project.targets {
-            export_sprite_as_is(target, &output)?;
+            export_sprite_as_is(target, output)?;
         }
     } else {
         for target in project.targets {
-            export_reformatted_sprite(target, &output)?;
+            export_reformatted_sprite(target, output)?;
         }
     }
 
