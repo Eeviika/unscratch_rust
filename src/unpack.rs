@@ -17,6 +17,7 @@ const SOUNDS_FOLDERNAME: &str = "sounds";
 const COSTUMES_FOLDERNAME: &str = "costumes";
 const SPRITES_FOLDERNAME: &str = "sprites";
 const SCRIPTS_FOLDERNAME: &str = "scripts";
+const MONITORS_FOLDERNAME: &str = "monitors";
 const DATA_FOLDERNAME: &str = "data";
 
 pub struct UnpackArgs {
