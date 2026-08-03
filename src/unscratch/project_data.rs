@@ -4,7 +4,7 @@ use std::collections::HashMap;
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Project {
     pub extensions: Vec<String>,
-    pub extension_urls: HashMap<String, String>,
+    pub external_extensions: HashMap<String, String>,
     pub metadata: ProjectMetadata,
 }
 
