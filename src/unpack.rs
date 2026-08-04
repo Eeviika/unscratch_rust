@@ -61,9 +61,9 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
     }
 
     if as_is {
-        export_project_as_is(&mut archive, &output)?;
+        export_project_with(&mut archive, &output, export_sprite_as_is)?;
     } else {
-        export_project(&mut archive, &output)?;
+        export_project_with(&mut archive, &output, export_reformatted_sprite)?;
     }
 
     Ok(())
@@ -122,9 +122,14 @@ where
     }
 }
 
-fn export_project<R>(archive: &mut ZipArchive<R>, output: &Path) -> Result<()>
+fn export_project_with<R, F>(
+    archive: &mut ZipArchive<R>,
+    output: &Path,
+    export_sprite: F,
+) -> Result<()>
 where
     R: Read + Seek,
+    F: Fn(ScratchTarget, &Path) -> Result<()>,
 {
     info!("Exporting project...");
     let project = deserialize_project(archive)?;
@@ -136,27 +141,7 @@ where
 
     info!("Exporting sprites...");
     for target in project.targets {
-        export_reformatted_sprite(target, output)?;
-    }
-
-    Ok(())
-}
-
-fn export_project_as_is<R>(archive: &mut ZipArchive<R>, output: &Path) -> Result<()>
-where
-    R: Read + Seek,
-{
-    info!("Exporting project...");
-    let project = deserialize_project(archive)?;
-    let meta = project.meta;
-
-    debug!("{meta:#?}");
-    debug!("Extensions:     {:?}", project.extensions);
-    debug!("Extension URLs: {:?}", project.extension_urls);
-
-    info!("Exporting sprites...");
-    for target in project.targets {
-        export_sprite_as_is(target, output)?;
+        export_sprite(target, output)?;
     }
 
     Ok(())
