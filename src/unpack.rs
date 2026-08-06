@@ -172,17 +172,10 @@ fn export_reformatted_sprite(target: ScratchTarget, sprites_path: &Path) -> Resu
 
 fn export_sprite_as_is(target: ScratchTarget, output: &Path) -> Result<()> {
     let sprites_path = output.join(SPRITES_FOLDERNAME);
-    let lists_path = output.join(DATA_FOLDERNAME);
 
     let sprite_name = &target.name;
 
-    if target.variables.is_empty() && target.lists.is_empty() && target.blocks.is_empty() {
-        warn!("Not exporting sprite {} as it is blank.", sprite_name);
-        return Ok(());
-    }
-
     let sprite_path = sprites_path.join(format!("{sprite_name}.json"));
-    let list_path = lists_path.join(format!("{sprite_name}.lists.json"));
 
     debug!(
         "attempting to export sprite {} as JSON to {}",
@@ -193,10 +186,6 @@ fn export_sprite_as_is(target: ScratchTarget, output: &Path) -> Result<()> {
     let sprite_json = serde_json::to_string_pretty(&target)?;
     let mut file = File::create(sprite_path)?;
     file.write_all(sprite_json.as_bytes())?;
-
-    let list_json = serde_json::to_string_pretty(&target.lists)?;
-    let mut file = File::create(list_path)?;
-    file.write_all(list_json.as_bytes())?;
 
     Ok(())
 }
