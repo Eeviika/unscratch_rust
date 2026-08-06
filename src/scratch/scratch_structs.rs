@@ -139,7 +139,6 @@ pub struct ScratchTarget {
     #[serde(rename = "videoState")]
     pub video_state: Option<String>,
     pub variables: HashMap<String, ScratchVariable>,
-    #[serde(skip_serializing, default)]
     pub lists: HashMap<String, ScratchList>,
     pub broadcasts: HashMap<String, String>,
     pub blocks: HashMap<String, ScratchBlockEntry>,
