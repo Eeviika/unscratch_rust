@@ -166,7 +166,7 @@ pub struct ScratchMonitor {
     #[serde(rename = "sliderMax")]
     pub slider_max: Option<f32>,
     #[serde(rename = "isDiscrete", default)]
-    pub is_discrete: Option<bool>,
+    pub is_discrete: bool,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
