@@ -1,4 +1,5 @@
 use crate::input_validator::are_filepaths_ok;
+use crate::unscratch::monitor::Monitor;
 use crate::{cli::*, unscratch::sprite::Sprite};
 use anyhow::Result;
 use file_format::{FileFormat, Kind};
@@ -242,6 +243,32 @@ fn export_monitor_as_is(monitor: ScratchMonitor, output: &Path) -> Result<()> {
     let monitor_json = serde_json::to_string_pretty(&monitor)?;
     let mut file = File::create(path)?;
     file.write_all(monitor_json.as_bytes())?;
+
+    Ok(())
+}
+
+fn export_reformatted_monitor(monitor: ScratchMonitor, output: &Path) -> Result<()> {
+    let monitors_path = output.join(MONITORS_FOLDERNAME);
+
+    let monitor_opcode = &monitor.opcode;
+    let monitor_mode = &monitor.mode;
+
+    let mut sprite_name: String = monitor.sprite_name.to_owned().unwrap_or("".into());
+    if sprite_name != "" {
+        sprite_name = sprite_name + "/"
+    }
+
+    let path_string = format!("{sprite_name}{monitor_opcode}_{monitor_mode}");
+    let path = monitors_path.join(format!("{path_string}.toml"));
+    debug!(
+        "attempting to export reformatted monitor as TOML to {}",
+        path.display()
+    );
+
+    let monitor = Monitor::try_from(monitor)?;
+    let toml = toml::to_string_pretty(&monitor)?;
+    let mut file = File::create(path)?;
+    file.write_all(toml.as_bytes())?;
 
     Ok(())
 }
