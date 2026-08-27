@@ -81,8 +81,9 @@ fn create_output_tree(output: &Path) -> Result<()> {
     let sprites = output.join(SPRITES_FOLDERNAME);
     let scripts = output.join(SCRIPTS_FOLDERNAME);
     let data = output.join(DATA_FOLDERNAME);
+    let monitors = output.join(MONITORS_FOLDERNAME);
 
-    for directory in [assets, sounds, costumes, sprites, scripts, data] {
+    for directory in [assets, sounds, costumes, sprites, scripts, data, monitors] {
         fs::create_dir_all(directory)?;
     }
 
