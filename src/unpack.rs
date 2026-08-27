@@ -50,7 +50,7 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
 
     let mut archive = ZipArchive::new(reader)?;
 
-    create_output_tree(&output)?;
+    create_output_tree(&output, as_is)?;
 
     info!("Scanning project file...");
 
@@ -61,7 +61,7 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
     }
 
     if as_is {
-        export_project_with(&mut archive, &output, export_sprite_as_is)?;
+        export_project_as_is(&mut archive, &output)?;
     } else {
         export_project_with(&mut archive, &output, export_reformatted_sprite)?;
     }
@@ -69,7 +69,7 @@ pub fn unpack(args: UnpackArgs, cli_options: CliOptions) -> Result<()> {
     Ok(())
 }
 
-fn create_output_tree(output: &Path) -> Result<()> {
+fn create_output_tree(output: &Path, as_is: bool) -> Result<()> {
     if output.exists() {
         fs::remove_dir_all(output)?;
         debug!("removed {} as it already existed", output.display());
@@ -83,8 +83,14 @@ fn create_output_tree(output: &Path) -> Result<()> {
     let data = output.join(DATA_FOLDERNAME);
     let monitors = output.join(MONITORS_FOLDERNAME);
 
-    for directory in [assets, sounds, costumes, sprites, scripts, data, monitors] {
-        fs::create_dir_all(directory)?;
+    if as_is {
+        for directory in [assets, sounds, costumes, sprites, monitors] {
+            fs::create_dir_all(directory)?;
+        }
+    } else {
+        for directory in [assets, sounds, costumes, sprites, scripts, data, monitors] {
+            fs::create_dir_all(directory)?;
+        }
     }
 
     info!("Created output directory tree.");
@@ -137,8 +143,8 @@ where
     let meta = project.meta;
 
     debug!("{meta:#?}");
-    debug!("Extensions:     {:?}", project.extensions);
-    debug!("Extension URLs: {:?}", project.extension_urls);
+    debug!("Extensions:            {:?}", project.extensions);
+    debug!("Custom Extension URLs: {:?}", project.extension_urls);
 
     info!("Exporting sprites...");
     for target in project.targets {
@@ -148,15 +154,43 @@ where
     Ok(())
 }
 
-fn export_reformatted_sprite(target: ScratchTarget, sprites_path: &Path) -> Result<()> {
+fn export_project_as_is<R>(archive: &mut ZipArchive<R>, output: &Path) -> Result<()>
+where
+    R: Read + Seek,
+{
+    info!("Exporting project...");
+    let project = deserialize_project(archive)?;
+    let meta = project.meta;
+
+    debug!("{meta:#?}");
+    debug!("Extensions:            {:?}", project.extensions);
+    debug!("Custom Extension URLs: {:?}", project.extension_urls);
+
+    info!("Exporting sprites...");
+    for target in project.targets {
+        export_sprite_as_is(target, output)?;
+    }
+
+    info!("Exporting monitors...");
+    for monitor in project.monitors {
+        export_monitor_as_is(monitor, output)?;
+    }
+
+    Ok(())
+}
+
+fn export_reformatted_sprite(target: ScratchTarget, output: &Path) -> Result<()> {
+    let sprites_path = output.join(SPRITES_FOLDERNAME);
+
     let sprite_name = &target.name;
+
+    let path = sprites_path.join(format!("{sprite_name}.toml"));
 
     if target.variables.is_empty() && target.lists.is_empty() && target.blocks.is_empty() {
         warn!("Not exporting sprite {} as it is blank.", sprite_name);
         return Ok(());
     }
 
-    let path = sprites_path.join(format!("{sprite_name}.toml"));
     debug!(
         "attempting to export sprite {} as reformatted TOML to {}",
         sprite_name,
@@ -176,17 +210,38 @@ fn export_sprite_as_is(target: ScratchTarget, output: &Path) -> Result<()> {
 
     let sprite_name = &target.name;
 
-    let sprite_path = sprites_path.join(format!("{sprite_name}.json"));
+    let path = sprites_path.join(format!("{sprite_name}.json"));
 
     debug!(
         "attempting to export sprite {} as JSON to {}",
         sprite_name,
-        sprite_path.display()
+        path.display()
     );
 
     let sprite_json = serde_json::to_string_pretty(&target)?;
-    let mut file = File::create(sprite_path)?;
+    let mut file = File::create(path)?;
     file.write_all(sprite_json.as_bytes())?;
+
+    Ok(())
+}
+
+fn export_monitor_as_is(monitor: ScratchMonitor, output: &Path) -> Result<()> {
+    let monitors_path = output.join(MONITORS_FOLDERNAME);
+
+    let monitor_opcode = &monitor.opcode;
+    let monitor_mode = &monitor.mode;
+
+    let sprite_name: String = monitor.sprite_name.to_owned().unwrap_or("".into());
+
+    let path_string = format!("{sprite_name}_{monitor_opcode}_{monitor_mode}");
+
+    let path = monitors_path.join(format!("{path_string}.json"));
+
+    debug!("attempting to export monitor as JSON to {}", path.display());
+
+    let monitor_json = serde_json::to_string_pretty(&monitor)?;
+    let mut file = File::create(path)?;
+    file.write_all(monitor_json.as_bytes())?;
 
     Ok(())
 }
