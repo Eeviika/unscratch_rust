@@ -255,7 +255,8 @@ fn export_reformatted_monitor(monitor: ScratchMonitor, output: &Path) -> Result<
 
     let mut sprite_name: String = monitor.sprite_name.to_owned().unwrap_or("".into());
     if sprite_name != "" {
-        sprite_name = sprite_name + "/"
+        sprite_name = sprite_name + "/";
+        fs::create_dir_all(monitors_path.join(format!("{sprite_name}/")))?;
     }
 
     let path_string = format!("{sprite_name}{monitor_opcode}_{monitor_mode}");
