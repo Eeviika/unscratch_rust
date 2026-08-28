@@ -15,6 +15,7 @@ colog = "1.4.0"
 file-format = "0.29.0"
 indicatif = "0.18.4"
 log = "0.4.33"
+sanitize-filename = "0.6.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 toml = "1.1.4"
