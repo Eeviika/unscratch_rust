@@ -4,6 +4,7 @@ use crate::{cli::*, unscratch::sprite::Sprite};
 use anyhow::Result;
 use file_format::{FileFormat, Kind};
 use log::{debug, info, warn};
+use sanitize_filename::sanitize;
 use std::{
     fs::{self, File},
     io::{BufReader, Read, Seek, Write},
@@ -183,7 +184,7 @@ where
 fn export_reformatted_sprite(target: ScratchTarget, output: &Path) -> Result<()> {
     let sprites_path = output.join(SPRITES_FOLDERNAME);
 
-    let sprite_name = &target.name;
+    let sprite_name = target.name.clone();
 
     let path = sprites_path.join(format!("{sprite_name}.toml"));
 
@@ -199,10 +200,37 @@ fn export_reformatted_sprite(target: ScratchTarget, output: &Path) -> Result<()>
     );
 
     let sprite = Sprite::try_from(target)?;
+
+    let lists = sprite.raw_lists.clone().unwrap();
+
+    debug!("exporting lists of sprite {}", &sprite_name);
+    for (key, list) in lists {
+        export_list_as_json(list, sprite_name.as_str(), output)?;
+    }
+
     let toml = toml::to_string_pretty(&sprite)?;
     let mut file = File::create(path)?;
     file.write_all(toml.as_bytes())?;
 
+    Ok(())
+}
+
+fn export_list_as_json(list: ScratchList, sprite_name: &str, output: &Path) -> Result<()> {
+    let lists_path = output.join(DATA_FOLDERNAME);
+
+    let safe_name = sanitize(sprite_name);
+
+    debug!("exporting list {}", list.0);
+
+    let path = lists_path.join(&safe_name).join(format!("{}.json", list.0));
+
+    if !fs::exists(lists_path.join(&safe_name)).unwrap() {
+        fs::create_dir(lists_path.join(&safe_name))?;
+    }
+
+    let json = serde_json::to_string_pretty(&list)?;
+    let mut file = File::create(path)?;
+    file.write_all(json.as_bytes())?;
     Ok(())
 }
 
