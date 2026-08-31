@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum ScratchValue {
     Boolean(bool),
@@ -66,7 +66,7 @@ pub struct ScratchBlock {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ScratchVariable(pub String, pub ScratchValue, #[serde(default)] pub bool);
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct ScratchList(pub String, pub Vec<ScratchValue>);
 
 #[derive(Deserialize, Serialize, Debug)]
