@@ -2,10 +2,12 @@ use anyhow::{Error, bail};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::scratch::scratch_structs::{ScratchTarget, ScratchValue, ScratchVariable};
+use crate::scratch::scratch_structs::{ScratchList, ScratchTarget, ScratchValue, ScratchVariable};
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Sprite {
+    #[serde(skip)]
+    pub raw_lists: Option<HashMap<String, ScratchList>>,
     pub general: GeneralData,
     pub looks: LooksData,
     pub audio: AudioData,
@@ -137,6 +139,7 @@ impl TryFrom<ScratchTarget> for Sprite {
             variables: scratch_variables,
             costumes: scratch_costumes,
             sounds: scratch_sounds,
+            lists,
             ..
         } = target;
 
@@ -213,6 +216,7 @@ impl TryFrom<ScratchTarget> for Sprite {
             .collect();
 
         Ok(Self {
+            raw_lists: Some(lists),
             general,
             looks,
             audio,
